@@ -1,0 +1,174 @@
+CREATE TABLE Utente (
+    ID_Utente INT AUTO_INCREMENT PRIMARY KEY,
+    Username VARCHAR(50) NOT NULL,
+    Password VARCHAR(255) NOT NULL,
+    Tipo_Utente VARCHAR(20) NOT NULL,
+    ID_Docente INT NULL,
+    ID_Studente INT NULL,
+    FOREIGN KEY (ID_Docente) REFERENCES Docente(ID_Docente),
+    FOREIGN KEY (ID_Studente) REFERENCES Studente(ID_Studente)
+);
+
+
+CREATE TABLE Anagrafica (
+    ID_Anagrafica INTEGER PRIMARY KEY AUTO_INCREMENT ,
+    Nome VARCHAR (50) NOT NULL ,
+    Cognome VARCHAR (50) NOT NULL ,
+    Data_Nascita DATE NOT NULL ,
+    Indirizzo VARCHAR (100) ,
+    Telefono VARCHAR (20) ,
+    Email VARCHAR (100)
+);
+
+CREATE TABLE Studente (
+    ID_Studente INTEGER PRIMARY KEY AUTO_INCREMENT ,
+    ID_Anagrafica INTEGER NOT NULL ,
+    ID_Classe INTEGER NOT NULL ,
+    FOREIGN KEY ( ID_Anagrafica ) REFERENCES Anagrafica ( ID_Anagrafica ) ,
+    FOREIGN KEY ( ID_Classe ) REFERENCES Classe ( ID_Classe )
+);
+
+CREATE TABLE Docente (
+    ID_Docente INTEGER PRIMARY KEY AUTO_INCREMENT ,
+    ID_Anagrafica INTEGER NOT NULL ,
+    FOREIGN KEY ( ID_Anagrafica ) REFERENCES Anagrafica ( ID_Anagrafica )
+);
+
+CREATE TABLE Materia (
+    ID_Materia INTEGER PRIMARY KEY AUTO_INCREMENT ,
+    Nome_Materia VARCHAR (50) NOT NULL
+);
+
+CREATE TABLE Classe (
+    ID_Classe INTEGER PRIMARY KEY AUTO_INCREMENT ,
+    Nome_Classe VARCHAR (50) NOT NULL ,
+    Anno_Scolastico VARCHAR (10) NOT NULL ,
+    ID_Indirizzo_Studio INTEGER NOT NULL ,
+    FOREIGN KEY ( ID_Indirizzo_Studio ) REFERENCES Indirizzo ( ID_Indirizzo )
+);
+
+CREATE TABLE Indirizzo (
+    ID_Indirizzo INTEGER PRIMARY KEY AUTO_INCREMENT ,
+    Nome_Indirizzo VARCHAR (50) NOT NULL
+);
+
+CREATE TABLE Insegnamento (
+    ID_Insegnamento INTEGER PRIMARY KEY AUTO_INCREMENT ,
+    ID_Docente INTEGER NOT NULL ,
+    ID_Materia INTEGER NOT NULL ,
+    ID_Classe INTEGER NOT NULL ,
+    FOREIGN KEY ( ID_Docente ) REFERENCES Docente ( ID_Docente ) ,
+    FOREIGN KEY ( ID_Materia ) REFERENCES Materia ( ID_Materia ) ,
+    FOREIGN KEY ( ID_Classe ) REFERENCES Classe ( ID_Classe )
+);
+
+
+CREATE TABLE Valutazione (
+    ID_Voto INTEGER PRIMARY KEY AUTO_INCREMENT,
+    ID_Studente INTEGER NOT NULL,
+    ID_Materia INTEGER NOT NULL,
+    Voto DECIMAL(4, 2) NOT NULL,
+    Data_Voto DATE NOT NULL,
+    ID_Docente INTEGER NOT NULL,  -- nuova colonna per il docente
+    FOREIGN KEY (ID_Studente) REFERENCES Studente(ID_Studente),
+    FOREIGN KEY (ID_Materia) REFERENCES Materia(ID_Materia),
+    FOREIGN KEY (ID_Docente) REFERENCES Docente(ID_Docente)  -- vincolo di chiave esterna
+);
+
+drop table Valutazione;
+
+ALTER TABLE Valutazione
+    ADD COLUMN ID_Docente INTEGER NOT NULL,  -- aggiungi la colonna ID_Docente se non esiste
+    ADD CONSTRAINT fk_docente
+        FOREIGN KEY (ID_Docente)
+            REFERENCES Docente(ID_Docente);
+
+
+
+
+INSERT INTO Indirizzo (Nome_Indirizzo) VALUES ('Scientifico');
+INSERT INTO Indirizzo (Nome_Indirizzo) VALUES ('Linguistico');
+
+
+INSERT INTO Materia (Nome_Materia) VALUES ('Matematica');
+INSERT INTO Materia (Nome_Materia) VALUES ('Fisica');
+INSERT INTO Materia (Nome_Materia) VALUES ('Inglese');
+
+
+
+
+INSERT INTO Anagrafica (Nome, Cognome, Data_Nascita, Indirizzo, Telefono, Email)
+VALUES ('Mario', 'Rossi', '2000-05-10', 'Via Roma 1', '123456789', 'mario.rossi@example.com');
+
+INSERT INTO Anagrafica (Nome, Cognome, Data_Nascita, Indirizzo, Telefono, Email)
+VALUES ('Giulia', 'Bianchi', '1985-08-15', 'Via Milano 2', '987654321', 'giulia.bianchi@example.com');
+
+
+
+
+INSERT INTO Classe (Nome_Classe, Anno_Scolastico, ID_Indirizzo_Studio)
+VALUES ('2A', '2024/2025', 1);
+
+INSERT INTO Classe (Nome_Classe, Anno_Scolastico, ID_Indirizzo_Studio)
+VALUES ('3B', '2024/2025', 2);
+
+
+
+
+-- Prima devi inserire i dati nella tabella Anagrafica, che è legata da una chiave esterna
+INSERT INTO Studente (ID_Anagrafica, ID_Classe)
+VALUES (1, 1); -- Mario Rossi, studente nella classe 2A
+
+INSERT INTO Studente (ID_Anagrafica, ID_Classe)
+VALUES (2, 2); -- Giulia Bianchi, studente nella classe 3B
+
+
+
+-- Inseriamo un docente (assumiamo che l'ID_Anagrafica di Mario Rossi sia 1)
+INSERT INTO Docente (ID_Anagrafica)
+VALUES (1); -- Mario Rossi è un docente
+
+INSERT INTO Docente (ID_Anagrafica)
+VALUES (2); -- Giulia Bianchi è un docente
+
+
+
+-- Inseriamo gli insegnamenti (associando i docenti alle materie e alle classi)
+INSERT INTO Insegnamento (ID_Docente, ID_Materia, ID_Classe)
+VALUES (1, 1, 1); -- Mario Rossi insegna Matematica nella classe 2A
+
+INSERT INTO Insegnamento (ID_Docente, ID_Materia, ID_Classe)
+VALUES (2, 2, 2); -- Giulia Bianchi insegna Fisica nella classe 3B
+
+
+
+-- Inseriamo dei voti per gli studenti
+INSERT INTO Valutazione (ID_Studente, ID_Materia, Voto, Data_Voto, ID_Docente)
+VALUES
+    (1, 2, 10, '2025-03-26', 2);  -- Primo record
+
+
+
+-- Mario Rossi è un docente, quindi lo colleghiamo alla tabella Docente
+INSERT INTO Utente (Username, Password, Tipo_Utente, ID_Docente, ID_Studente)
+VALUES ('mrossi', 'password123', 'Docente', 1, NULL);
+
+-- Giulia Bianchi è una studentessa, quindi la colleghiamo alla tabella Studente
+INSERT INTO Utente (Username, Password, Tipo_Utente, ID_Docente, ID_Studente)
+VALUES ('gbianchi', 'password123', 'Studente', NULL, 1);
+
+-- VOTI STUDENTI ASSEGNATI DA DOCENTI
+SELECT A.Nome as Studente,Voto, Nome_Materia,DV.Nome as Docente FROM Valutazione
+JOIN Studente S on Valutazione.ID_Studente = S.ID_Studente
+JOIN Anagrafica A on A.ID_Anagrafica = S.ID_Anagrafica
+JOIN Materia M on Valutazione.ID_Materia = M.ID_Materia
+JOIN Docente D on Valutazione.ID_Docente = D.ID_Docente
+JOIN Anagrafica DV on DV.ID_Anagrafica = D.ID_Anagrafica;
+
+-- CLASSI DOVE INSEGNA UN DOCENTE E LA MATERIA CHE INSEGNA
+SELECT A.Nome AS DOCENTE,Classe.Nome_Classe,M.Nome_Materia AS MATERIA_INSEGNATA FROM Classe
+JOIN Insegnamento I on Classe.ID_Classe = I.ID_Classe
+JOIN Docente D on D.ID_Docente = I.ID_Docente
+JOIN Anagrafica A on A.ID_Anagrafica = D.ID_Anagrafica
+JOIN Materia M on M.ID_Materia = I.ID_Materia
+;
