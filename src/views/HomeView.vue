@@ -8,6 +8,7 @@
         <v-btn to='/' class="mx-2" variant="text">Home</v-btn>
         <v-btn to='/profile' class="mx-2" variant="text">Profile</v-btn>
         <v-btn to='/login' class="mx-2" variant="text">Login</v-btn>
+        <v-btn to='/register' class="mx-2" variant="text">Register</v-btn>
         <v-spacer></v-spacer>
 
 
@@ -16,7 +17,7 @@
 
     <!-- Main Section with Buttons -->
     <v-main class="bg-grey-lighten-3">
-      <v-container class="d-flex justify-center align-center" style="height: 100vh;">
+      <v-container class="d-flex justify-center align-center" style="height: 40vh;">
         <v-row class="d-flex justify-center align-center" style="width: 100%">
           <!-- Profilo -->
           <v-col cols="4" class="d-flex justify-center">
@@ -56,52 +57,73 @@
         </v-row>
 
       </v-container>
-
-        <v-carousel
-          height="400"
-          show-arrows="hover"
-          cycle
-          hide-delimiter-background
+      <v-carousel
+        height="600"
+        show-arrows="hover"
+        cycle
+        hide-delimiter-background
+      >
+        <v-carousel-item
+          v-for="(slide, i) in slides"
+          :key="i"
         >
-          <v-carousel-item
-            v-for="(slide, i) in slides"
-            :key="i"
+          <v-sheet
+            :color="colors[i]"
+            height="100%"
           >
-            <v-sheet
-              :color="colors[i]"
+            <v-img
+              :src="slide.image"
+              alt="Image slide"
               height="100%"
-            >
-              <div class="d-flex fill-height justify-center align-center">
-                <div class="text-h2">
-                  {{ slide }} Slide
-                </div>
-              </div>
-            </v-sheet>
-          </v-carousel-item>
-        </v-carousel>
+              contain
+            />
+
+          </v-sheet>
+        </v-carousel-item>
+      </v-carousel>
 
     </v-main>
   </v-app>
 </template>
 
+
 <script setup>
+
 const links = [
   'Sign in',
   'Login',
   'Profile',
-]
+  'Register',
+];
+
 </script>
+<!--<script setup>-->
+<!--import { onMounted } from 'vue';-->
+
+<!--onMounted(() => {-->
+<!--  fetch('http://localhost:5000/api/test')-->
+<!--    .then(response => response.json())-->
+<!--    .then(data => console.log('Risposta dal backend:', data))-->
+<!--    .catch(error => console.error('Errore:', error));-->
+<!--});-->
+<!--</script>-->
+
 
 <script>
+
 export default {
-  data: () => ({
-    links: [
-      'Sign in',
-      'Login',
-      'Profile',
-    ],
-  }),
-}
+  data() {
+    return {
+      colors: ['#ffffff', '#ffffff', '#ffffff'], // I colori di sfondo del carousel
+      slides: [
+        { image: 'src/assets/scuola.jpeg' },
+        { image: 'src/assets/scuola.jpg' },
+        { image: 'src/assets/scuola1.jpeg' }
+      ]
+    };
+  }
+};
+
 </script>
 
 <style scoped>
