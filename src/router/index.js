@@ -62,7 +62,6 @@ const router = createRouter({
   ],
 })
 
-const router = useRouter();
 
 const register = async () => {
   try {
