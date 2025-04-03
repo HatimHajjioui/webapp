@@ -19,39 +19,39 @@
     <v-main class="bg-grey-lighten-3">
       <v-container class="d-flex justify-center align-center" style="height: 40vh;">
         <v-row class="d-flex justify-center align-center" style="width: 100%">
-          <!-- Profilo -->
+          <!-- Amministratore -->
           <v-col cols="4" class="d-flex justify-center">
             <v-btn
               color="primary"
               large
               class="mx-2 w-100"
-              to="/profile"
+              to="/administrator"
             >
-              Profile
+              Amministratore
             </v-btn>
           </v-col>
 
-          <!-- Login -->
+          <!-- Studente -->
           <v-col cols="4" class="d-flex justify-center">
             <v-btn
               color="success"
               large
               class="mx-2 w-100"
-              to="/login"
+              to="/student"
             >
-              Login
+              Studente
             </v-btn>
           </v-col>
 
-          <!-- Sign Up -->
+          <!-- Docente -->
           <v-col cols="4" class="d-flex justify-center">
             <v-btn
               color="error"
               large
               class="mx-2 w-100"
-              to="/signup"
+              to="/teacher"
             >
-              Sign Up
+              Docente
             </v-btn>
           </v-col>
         </v-row>
