@@ -12,6 +12,7 @@
         <v-spacer></v-spacer>
       </v-container>
     </v-app-bar>
+    <v-spacer> </v-spacer>
     <v-container class="pa-4 mx-auto" max-width="400px">
       <v-card class="pa-4">
         <v-card-title class="text-center">Registrazione</v-card-title>
@@ -24,11 +25,19 @@
           <v-text-field v-model="nome" label="Nome" required outlined dense></v-text-field>
           <v-text-field v-model="cognome" label="Cognome" required outlined dense></v-text-field>
           <v-text-field v-model="data_nascita" label="Data di nascita" required outlined dense></v-text-field>
-          <v-text-field v-model="indirizzo" label="indirizzo" required outlined dense></v-text-field>
-          <v-text-field v-model="telefono" label="telefono" required outlined dense></v-text-field>
+          <v-text-field v-model="indirizzo" label="Indirizzo" required outlined dense></v-text-field>
+          <v-text-field v-model="telefono" label="Telefono" required outlined dense></v-text-field>
           <v-text-field v-model="email" label="Email" type="email" required outlined dense></v-text-field>
           <v-text-field v-model="password" label="Password" type="password" required outlined dense></v-text-field>
           <v-text-field v-model="confirmPassword" label="Conferma Password" type="password" required outlined dense></v-text-field>
+          <v-select
+            v-model="type"
+            label="Seleziona uno stato"
+            :items="['Docente', 'Studente', 'Amministratore']"
+          ></v-select>
+
+
+
 
           <v-btn :loading="loading" color="primary" block class="mt-3" type="submit">Registrati</v-btn>
         </v-form>
@@ -55,6 +64,7 @@ export default {
       email: "",
       password: "",
       confirmPassword: "",
+      type: "", // Tipo utente (admin, user)
       errorMessage: "",
       loading: false,
     };
@@ -63,7 +73,7 @@ export default {
     async register() {
       // Controllo che tutti i campi siano compilati
       if (!this.nome || !this.cognome || !this.data_nascita || !this.indirizzo ||
-        !this.telefono || !this.email || !this.password || !this.confirmPassword) {
+        !this.telefono || !this.email || !this.password || !this.confirmPassword || !this.type) {
         this.errorMessage = "Tutti i campi sono obbligatori!";
         return;
       }
@@ -92,6 +102,7 @@ export default {
           telefono: this.telefono,
           email: this.email,
           password: this.password,
+          type: this.type,  // Aggiungi il tipo utente al corpo della richiesta
         });
 
         // Salva il token e reindirizza
@@ -105,5 +116,4 @@ export default {
     },
   },
 };
-
 </script>
