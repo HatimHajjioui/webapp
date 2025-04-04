@@ -12,8 +12,7 @@
         <v-spacer></v-spacer>
       </v-container>
     </v-app-bar>
-
-    <v-container class="pa-4" max-width="400px">
+    <v-container class="pa-4 mx-auto" max-width="400px">
       <v-card class="pa-4">
         <v-card-title class="text-center">Registrazione</v-card-title>
 
@@ -22,7 +21,11 @@
         </v-alert>
 
         <v-form @submit.prevent="register">
-          <v-text-field v-model="name" label="Nome" required outlined dense></v-text-field>
+          <v-text-field v-model="nome" label="Nome" required outlined dense></v-text-field>
+          <v-text-field v-model="cognome" label="Cognome" required outlined dense></v-text-field>
+          <v-text-field v-model="data_nascita" label="Data di nascita" required outlined dense></v-text-field>
+          <v-text-field v-model="indirizzo" label="indirizzo" required outlined dense></v-text-field>
+          <v-text-field v-model="telefono" label="telefono" required outlined dense></v-text-field>
           <v-text-field v-model="email" label="Email" type="email" required outlined dense></v-text-field>
           <v-text-field v-model="password" label="Password" type="password" required outlined dense></v-text-field>
           <v-text-field v-model="confirmPassword" label="Conferma Password" type="password" required outlined dense></v-text-field>
@@ -40,12 +43,15 @@
 
 <script>
 import axios from "axios";
-import { useRouter } from "vue-router";
 
 export default {
   data() {
     return {
-      name: "",
+      nome: "",
+      cognome: "",
+      data_nascita: "",
+      indirizzo: "",
+      telefono: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -55,14 +61,20 @@ export default {
   },
   methods: {
     async register() {
-      if (!this.name || !this.email || !this.password || !this.confirmPassword) {
+      // Controllo che tutti i campi siano compilati
+      if (!this.nome || !this.cognome || !this.data_nascita || !this.indirizzo ||
+        !this.telefono || !this.email || !this.password || !this.confirmPassword) {
         this.errorMessage = "Tutti i campi sono obbligatori!";
         return;
       }
+
+      // Controllo sulla lunghezza della password
       if (this.password.length < 6) {
         this.errorMessage = "La password deve avere almeno 6 caratteri!";
         return;
       }
+
+      // Controllo se le password coincidono
       if (this.password !== this.confirmPassword) {
         this.errorMessage = "Le password non coincidono!";
         return;
@@ -72,14 +84,19 @@ export default {
       this.errorMessage = "";
 
       try {
-        const response = await axios.post("http://localhost:5000/api/register", {
-          name: this.name,
+        const response = await axios.post("http://localhost:8080/register", {
+          nome: this.nome,
+          cognome: this.cognome,
+          data_nascita: this.data_nascita,
+          indirizzo: this.indirizzo,
+          telefono: this.telefono,
           email: this.email,
           password: this.password,
         });
 
+        // Salva il token e reindirizza
         localStorage.setItem("token", response.data.token);
-        this.$router.push("/dashboard");
+        this.$router.push("/");
       } catch (error) {
         this.errorMessage = error.response?.data?.message || "Errore durante la registrazione!";
       } finally {
@@ -88,4 +105,5 @@ export default {
     },
   },
 };
+
 </script>

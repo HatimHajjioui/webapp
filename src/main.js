@@ -33,14 +33,14 @@ export default {
   methods: {
     async register() {
       try {
-        const response = await axios.post("http://localhost:3306/api/register", {
+        const response = await axios.post("http://localhost:3306/register", {
           name: this.name,
           email: this.email,
           password: this.password,
         });
 
         localStorage.setItem("token", response.data.token);
-        this.router.push("/dashboard"); // Usa `this.router`
+        this.$router.push("/home"); // Usa `this.router`
       } catch (error) {
         this.errorMessage = "Errore durante la registrazione!";
       }
