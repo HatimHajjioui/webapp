@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -61,22 +60,20 @@ const router = createRouter({
     },
   ],
 })
-
-
+/*
 const register = async () => {
   try {
-    const response = await axios.post("https://api.example.com/register", {
+    const response = await axios.post('https://api.example.com/register', {
       name,
       email,
       password,
-    });
+    })
 
-    localStorage.setItem("token", response.data.token);
-    router.push("/dashboard"); // 🔥 Sposta l'utente sulla pagina della dashboard
+    localStorage.setItem('token', response.data.token)
+    router.push('/dashboard') // 🔥 Sposta l'utente sulla pagina della dashboard
   } catch (error) {
-    errorMessage.value = "Errore durante la registrazione!";
+    errorMessage.value = 'Errore durante la registrazione!'
   }
-};
-
-
+}
+*/
 export default router

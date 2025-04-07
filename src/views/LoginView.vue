@@ -1,86 +1,102 @@
 <template>
-  <v-app id="inspire">
-    <v-app-bar flat>
-      <v-container class="mx-auto d-flex align-center justify-center">
-        <v-avatar class="me-4" color="grey-darken-1" size="32"></v-avatar>
+  <v-container class="mx-auto d-flex align-center justify-center">
+    <v-avatar class="me-4" color="grey-darken-1" size="32"></v-avatar>
 
-        <!-- Barra di navigazione -->
-        <v-btn to="/" class="mx-2" variant="text">Home</v-btn>
-        <v-btn to="/profile" class="mx-2" variant="text">Profile</v-btn>
-        <v-btn to="/login" class="mx-2" variant="text">Login</v-btn>
-        <v-btn to='/register' class="mx-2" variant="text">Register</v-btn>
+    <v-btn to="/" class="mx-2" variant="text">Home</v-btn>
+    <v-btn to="/profile" class="mx-2" variant="text">Profile</v-btn>
+    <v-btn to="/login" class="mx-2" variant="text">Login</v-btn>
+    <v-btn to="/register" class="mx-2" variant="text">Register</v-btn>
 
-        <v-spacer></v-spacer>
-      </v-container>
-    </v-app-bar>
+    <v-spacer></v-spacer>
+  </v-container>
+  <v-container class="pa-4 mx-auto" max-width="500px">
+    <v-card class="pa-4">
+      <v-card-title class="text-center">Accedi</v-card-title>
 
-    <v-container class="pa-4" max-width="400px">
-      <v-row class="d-flex justify-center">
-        <v-col cols="12">
-          <v-avatar size="120" class="mb-4">
-            <!-- Logo o immagine del profilo -->
-            <img src="https://via.placeholder.com/150" alt="Logo" />
-          </v-avatar>
-        </v-col>
-      </v-row>
+      <v-alert v-if="successMessage" type="success" class="mb-3">{{ successMessage }}</v-alert>
+      <v-alert v-if="errorMessage" type="error" class="mb-3">{{ errorMessage }}</v-alert>
 
-      <!-- Modulo di login -->
-      <v-row>
-        <v-col cols="12">
-          <v-text-field
-            label="Email"
-            v-model="email"
-            type="email"
-            outlined
-            dense
-            required
-          ></v-text-field>
-        </v-col>
-
-        <v-col cols="12">
-          <v-text-field
-            label="Password"
-            v-model="password"
-            type="password"
-            outlined
-            dense
-            required
-            @keyup.enter="login"
-          ></v-text-field>
-        </v-col>
-      </v-row>
-
-      <!-- Pulsante di login -->
-      <v-row>
-        <v-col cols="12" class="d-flex justify-center">
-          <v-btn color="primary" @click="login">Accedi</v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-app>
+      <v-form @submit.prevent="login">
+        <v-text-field
+          v-model="email"
+          label="Email"
+          type="email"
+          outlined
+          dense
+          required
+        />
+        <v-text-field
+          v-model="password"
+          label="Password"
+          type="password"
+          outlined
+          dense
+          required
+        />
+        <v-btn :loading="loading" type="submit" color="primary" block class="mt-4">
+          Accedi
+        </v-btn>
+      </v-form>
+    </v-card>
+  </v-container>
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   data() {
     return {
       email: '',
       password: '',
-    };
+      Tipo_Utente:'',
+      loading: false,
+      errorMessage: '',
+      successMessage: ''
+    }
   },
   methods: {
-    login() {
-      if (this.email && this.password) {
-        // Logica per il login (ad esempio chiamata a un'API)
-        alert(`Login eseguito con successo! Email: ${this.email}`);
-      } else {
-        alert("Per favore, inserisci email e password.");
-      }
-    },
-  },
-};
-</script>
+    async login() {
+      this.errorMessage = ''
+      this.successMessage = ''
+      this.loading = true
 
-<style scoped>
-/* Puoi aggiungere stili personalizzati qui */
-</style>
+      if (!this.email || !this.password) {
+        this.errorMessage = 'Email e password sono obbligatori'
+        this.loading = false
+        return
+      }
+
+      try {
+        const response = await axios.post('http://localhost:8080/login', {
+          email: this.email,
+          password: this.password
+        }).then((response) => {
+          console.log(response.data.utente.Tipo_Utente)
+          if (response.data.messaggio) {
+            this.successMessage = response.data.messaggio
+            console.log('utente:', response.data.utente)
+
+            // Salva l'utente nel localStorage (opzionale)
+            localStorage.setItem('Utente', JSON.stringify(response.data.utente))
+            if(response.data.utente.Tipo_Utente=='Docente'){
+              this.$router.push('/teacher')
+            }else if(response.data.utente.Tipo_Utente=='Studente'){
+              this.$router.push('/student')
+            }else if(response.data.utente.Tipo_Utente=='Amministratore'){
+              this.$router.push('/administrator')
+            }
+          } else {
+            this.errorMessage = response.data.errore || 'Credenziali errate'
+          }
+        })
+
+      } catch (err) {
+        this.errorMessage = err.response?.data?.errore || 'Errore durante il login'
+      } finally {
+        this.loading = false
+      }
+    }
+  }
+}
+</script>
