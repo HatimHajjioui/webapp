@@ -145,6 +145,7 @@ export default {
           password: this.password,
           type: this.type, // Aggiungi il tipo utente al corpo della richiesta
         }).then((response)=>{
+          console.log(response.data)
           // Salva il token e reindirizza
           localStorage.setItem('token', response.data.token)
           this.$router.push('/')

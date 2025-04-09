@@ -46,24 +46,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/login
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/register') {
     $dati = json_decode(file_get_contents("php://input"), true);
 
-    if (!isset($dati['email'], $dati['password'], $dati['tipo_utente'])) {
+    if (!isset($dati['nome'], $dati['cognome'], $dati['data_nascita'], $dati['indirizzo'], $dati['telefono'], $dati['email'], $dati['password'], $dati['type'])) {
         echo json_encode(["errore" => "Tutti i campi sono obbligatori"]);
         exit;
     }
 
+
     try {
-        $stmt = $pdo->prepare("INSERT INTO utente (Email, Password, Tipo_Utente) VALUES (:email, :password, :tipo)");
+        // Inserimento in Anagrafica
+        $stmt = $pdo->prepare("INSERT INTO anagrafica (Nome, Cognome, Data_Nascita, Indirizzo, Telefono, Email)
+                               VALUES (:nome, :cognome, :data_nascita, :indirizzo, :telefono, :email)");
         $stmt->execute([
-            'email' => $dati['email'],
-            'password' => $dati['password'],
-            'tipo' => $dati['tipo_utente']
+            'nome' => $dati['nome'],
+            'cognome' => $dati['cognome'],
+            'data_nascita' => $dati['data_nascita'],
+            'indirizzo' => $dati['indirizzo'],
+            'telefono' => $dati['telefono'],
+            'email' => $dati['email']
         ]);
 
-        if ($stmt->rowCount() > 0) {
-            echo json_encode(["messaggio" => "Registrazione avvenuta con successo"]);
-        } else {
-            echo json_encode(["errore" => "Errore durante la registrazione"]);
+        $idAnagrafica = $pdo->lastInsertId();
+
+        // Inserisci in Studente o Docente in base al tipo
+        if ($dati['type'] === 'Studente') {
+            $stmt2 = $pdo->prepare("INSERT INTO studente (ID_Anagrafica, ID_Classe) VALUES (:id, 1)");
+            $stmt2->execute(['id' => $idAnagrafica]);
+            $idStudente = $pdo->lastInsertId();
+
+            $stmt3 = $pdo->prepare("INSERT INTO utente (Email, Password, Tipo_Utente, ID_Studente) 
+                                    VALUES (:email, :password, :type, :id_studente)");
+            $stmt3->execute([
+                'email' => $dati['email'],
+                'password' => $dati['password'],
+                'type' => $dati['type'],
+                'id_studente' => $idStudente
+            ]);
+        } else if ($dati['type'] === 'Docente') {
+            $stmt2 = $pdo->prepare("INSERT INTO docente (ID_Anagrafica) VALUES (:id)");
+            $stmt2->execute(['id' => $idAnagrafica]);
+            $idDocente = $pdo->lastInsertId();
+
+            $stmt3 = $pdo->prepare("INSERT INTO utente (Email, Password, Tipo_Utente, ID_Docente) 
+                                    VALUES (:email, :password, :type, :id_docente)");
+            $stmt3->execute([
+                'email' => $dati['email'],
+                'password' => $dati['password'],
+                'type' => $dati['type'],
+                'id_docente' => $idDocente
+            ]);
         }
+
+        echo json_encode(["messaggio" => "Registrazione avvenuta con successo!"]);
     } catch (PDOException $e) {
         echo json_encode(["errore" => "Errore nel database: " . $e->getMessage()]);
     }
