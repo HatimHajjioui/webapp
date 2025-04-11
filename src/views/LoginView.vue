@@ -79,11 +79,11 @@ export default {
 
             // Salva l'utente nel localStorage (opzionale)
             localStorage.setItem('Utente', JSON.stringify(response.data.utente))
-            if(response.data.utente.Tipo_Utente==='Docente'){
+            if(response.data.utente.Tipo_Utente===2){
               this.$router.push('/teacher')
-            }else if(response.data.utente.Tipo_Utente==='Studente'){
+            }else if(response.data.utente.Tipo_Utente===3){
               this.$router.push('/student')
-            }else if(response.data.utente.Tipo_Utente==='Amministratore'){
+            }else if(response.data.utente.Tipo_Utente===1){
               this.$router.push('/administrator')
             }
           } else {

@@ -78,11 +78,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/regis
             $stmt3->execute([
                 'email' => $dati['email'],
                 'password' => $dati['password'],
-                'type' => $dati['type'],
+                'type' => 3,
                 'id_studente' => $idStudente
             ]);
         } else if ($dati['type'] === 'Docente') {
-            $stmt2 = $pdo->prepare("INSERT INTO docente (ID_Anagrafica) VALUES (:id)");
+            $stmt2 = $pdo->prepare("INSERT INTO docente (ID_Anagrafica) VALUES (:id,1)");
             $stmt2->execute(['id' => $idAnagrafica]);
             $idDocente = $pdo->lastInsertId();
 
@@ -91,12 +91,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/regis
             $stmt3->execute([
                 'email' => $dati['email'],
                 'password' => $dati['password'],
-                'type' => $dati['type'],
+                'type' => 2,
+                'id_docente' => $idDocente
+            ]);
+        }else if ($dati['type'] === 'Amministratore') {
+            $stmt2 = $pdo->prepare("INSERT INTO docente (ID_Anagrafica) VALUES (:id,1)");
+            $stmt2->execute(['id' => $idAnagrafica]);
+            $idDocente = $pdo->lastInsertId();
+
+            $stmt3 = $pdo->prepare("INSERT INTO utente (Email, Password, Tipo_Utente, ID_Docente) 
+                                    VALUES (:email, :password, :type, :id_docente)");
+            $stmt3->execute([
+                'email' => $dati['email'],
+                'password' => $dati['password'],
+                'type' => 1,
                 'id_docente' => $idDocente
             ]);
         }
-
-        echo json_encode(["messaggio" => "Registrazione avvenuta con successo!"]);
+        $utente = $stmt3->fetch(PDO::FETCH_ASSOC);
+        echo json_encode(["messaggio" => "Registrazione avvenuta con successo!","utente" => $utente]);
     } catch (PDOException $e) {
         echo json_encode(["errore" => "Errore nel database: " . $e->getMessage()]);
     }

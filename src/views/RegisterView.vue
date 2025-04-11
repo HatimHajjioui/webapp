@@ -144,12 +144,17 @@ export default {
           email: this.email,
           password: this.password,
           type: this.type, // Aggiungi il tipo utente al corpo della richiesta
-        }).then((response)=>{
-          console.log(response.data)
+        })
+          console.log('utente:',response.data.utente.type)
           // Salva il token e reindirizza
           localStorage.setItem('token', response.data.token)
-          this.$router.push('/')
-        })
+          if(response.data.type==='Docente'){
+            this.$router.push('/teacher')
+          }else if(response.data.type==='Studente'){
+            this.$router.push('/student')
+          }else if(response.data.type==='Amministratore'){
+            this.$router.push('/administrator')
+          }
       } catch (error) {
         this.errorMessage = error.response?.data?.message || 'Errore durante la registrazione!'
       } finally {
