@@ -17,25 +17,9 @@
       <v-alert v-if="errorMessage" type="error" class="mb-3">{{ errorMessage }}</v-alert>
 
       <v-form @submit.prevent="login">
-        <v-text-field
-          v-model="email"
-          label="Email"
-          type="email"
-          outlined
-          dense
-          required
-        />
-        <v-text-field
-          v-model="password"
-          label="Password"
-          type="password"
-          outlined
-          dense
-          required
-        />
-        <v-btn :loading="loading" type="submit" color="primary" block class="mt-4">
-          Accedi
-        </v-btn>
+        <v-text-field v-model="email" label="Email" type="email" outlined dense required />
+        <v-text-field v-model="password" label="Password" type="password" outlined dense required />
+        <v-btn :loading="loading" type="submit" color="primary" block class="mt-4"> Accedi </v-btn>
       </v-form>
     </v-card>
   </v-container>
@@ -49,10 +33,10 @@ export default {
     return {
       email: '',
       password: '',
-      Tipo_Utente:'',
+      Tipo_Utente: '',
       loading: false,
       errorMessage: '',
-      successMessage: ''
+      successMessage: '',
     }
   },
   methods: {
@@ -68,35 +52,36 @@ export default {
       }
 
       try {
-        const response = await axios.post('http://localhost:8080/login', {
-          email: this.email,
-          password: this.password
-        }).then((response) => {
-          console.log(response.data.utente.Tipo_Utente)
-          if (response.data.messaggio) {
-            this.successMessage = response.data.messaggio
-            console.log('utente:', response.data.utente)
+        const response = await axios
+          .post('http://localhost:8080/login', {
+            email: this.email,
+            password: this.password,
+          })
 
-            // Salva l'utente nel localStorage (opzionale)
-            localStorage.setItem('Utente', JSON.stringify(response.data.utente))
-            if(response.data.utente.Tipo_Utente===2){
-              this.$router.push('/teacher')
-            }else if(response.data.utente.Tipo_Utente===3){
-              this.$router.push('/student')
-            }else if(response.data.utente.Tipo_Utente===1){
-              this.$router.push('/administrator')
+            console.log(response.data.utente.Tipo_Utente)
+            if (response.data.messaggio) {
+              this.successMessage = response.data.messaggio
+              console.log('utente:', response.data.utente)
+
+              // Salva l'utente nel localStorage (opzionale)
+              localStorage.setItem('Utente', JSON.stringify(response.data.utente))
+              if (response.data.utente.Tipo_Utente === 2) {
+                this.$router.push('/teacher')
+              } else if (response.data.utente.Tipo_Utente === 3) {
+                this.$router.push('/student')
+              } else if (response.data.utente.Tipo_Utente === 1) {
+                this.$router.push('/administrator')
+              }
+            } else {
+              this.errorMessage = response.data.errore || 'Credenziali errate'
             }
-          } else {
-            this.errorMessage = response.data.errore || 'Credenziali errate'
-          }
-        })
 
       } catch (err) {
         this.errorMessage = err.response?.data?.errore || 'Errore durante il login'
       } finally {
         this.loading = false
       }
-    }
-  }
+    },
+  },
 }
 </script>

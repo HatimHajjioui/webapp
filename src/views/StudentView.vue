@@ -1,110 +1,99 @@
 <template>
-  <v-app>
-    <v-app-bar app dark color="primary">
-      <v-toolbar-title>Area Studente</v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn text to="/profile">Profilo</v-btn>
-      <v-btn text @click="logout">Esci</v-btn>
-    </v-app-bar>
+  <button @click="logout">Esci</button>
+  <div class="min-h-screen bg-gradient-to-br from-blue-100 to-purple-200 p-6">
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-6">
+      <h1 class="text-3xl font-bold text-center mb-4">Benvenuto, {{ studente.nome }} {{ studente.cognome }}</h1>
 
-    <v-main>
-      <v-container class="pa-4" fluid>
-        <!-- Titolo della pagina -->
-        <v-row>
-          <v-col cols="12" md="6">
-            <v-card class="pa-3">
-              <v-card-title class="headline">Benvenuto, {{ student.name }}!</v-card-title>
-              <v-card-subtitle>{{ student.email }}</v-card-subtitle>
-            </v-card>
-          </v-col>
-        </v-row>
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Info Anagrafiche -->
+        <div class="bg-blue-50 p-4 rounded-xl shadow">
+          <h2 class="text-xl font-semibold mb-2">Dati Personali</h2>
+          <p><strong>Email:</strong> {{ studente.email }}</p>
+          <p><strong>Data di Nascita:</strong> {{ studente.data_nascita }}</p>
+          <p><strong>Indirizzo:</strong> {{ studente.indirizzo }}</p>
+          <p><strong>Telefono:</strong> {{ studente.telefono }}</p>
+        </div>
 
-        <!-- Grafico dei voti -->
-        <v-row>
-          <v-col cols="12" md="6">
-            <v-card>
-              <v-card-title>Voti recenti</v-card-title>
-              <v-card-subtitle>Una panoramica delle tue performance</v-card-subtitle>
-              <v-divider></v-divider>
-              <v-card-text>
-                <line-chart :chart-data="chartData" />
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
+        <!-- Classe e indirizzo -->
+        <div class="bg-purple-50 p-4 rounded-xl shadow">
+          <h2 class="text-xl font-semibold mb-2">Classe e Indirizzo</h2>
+          <p><strong>Classe:</strong> {{ studente.classe }}</p>
+          <p><strong>Anno Scolastico:</strong> {{ studente.anno }}</p>
+          <p><strong>Indirizzo di Studio:</strong> {{ studente.indirizzo_studio }}</p>
+        </div>
+      </div>
 
-        <!-- Dettaglio dei voti -->
-        <v-row>
-          <v-col v-for="(grade, index) in student.grades" :key="index" cols="12" md="4">
-            <v-card class="elevation-2" outlined>
-              <v-card-title>{{ grade.subject }}</v-card-title>
-              <v-card-subtitle>{{ grade.score }} / 10</v-card-subtitle>
-              <v-divider></v-divider>
-              <v-card-text>
-                <v-btn small color="primary" @click="viewDetails(grade.subject)">Dettagli</v-btn>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
-    </v-main>
-  </v-app>
+      <!-- Materie -->
+      <div class="mt-8 bg-green-50 p-4 rounded-xl shadow">
+        <h2 class="text-xl font-semibold mb-2">Materie della tua Classe</h2>
+        <ul class="list-disc ml-5">
+          <li v-for="materia in materie" :key="materia.id">{{ materia.nome }}</li>
+        </ul>
+      </div>
+
+      <!-- Voti -->
+      <div class="mt-8 bg-yellow-50 p-4 rounded-xl shadow">
+        <h2 class="text-xl font-semibold mb-2">I tuoi Voti</h2>
+        <table class="w-full text-left table-auto">
+          <thead>
+          <tr class="bg-yellow-200">
+            <th class="p-2">Materia</th>
+            <th class="p-2">Docente</th>
+            <th class="p-2">Voto</th>
+            <th class="p-2">Data</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="voto in voti" :key="voto.id" class="border-t">
+            <td class="p-2">{{ voto.materia }}</td>
+            <td class="p-2">{{ voto.docente }}</td>
+            <td class="p-2">{{ voto.voto }}</td>
+            <td class="p-2">{{ voto.data }}</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-// Importa Vue ChartJS per i grafici
-import { Line } from 'vue-chartjs'
-import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale } from 'chart.js'
-
-ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale)
-
 export default {
-  components: {
-    LineChart: Line
-  },
+  name: "StudenteView",
   data() {
     return {
-      // Dati del profilo studente (in un'app reale verrebbero presi da un'API)
-      student: {
-        name: 'Giovanni Rossi',
-        email: 'giovanni.rossi@email.com',
-        grades: [
-          { subject: 'Matematica', score: 8 },
-          { subject: 'Fisica', score: 7 },
-          { subject: 'Inglese', score: 9 },
-          { subject: 'Storia', score: 6 },
-          { subject: 'Chimica', score: 7 },
-        ]
+      studente: {
+        nome: "Mario",
+        cognome: "Rossi",
+        email: "mario.rossi@example.com",
+        data_nascita: "2000-05-10",
+        indirizzo: "Via Roma 1",
+        telefono: "123456789",
+        classe: "2A",
+        anno: "2024/2025",
+        indirizzo_studio: "Scientifico"
       },
-      // Dati per il grafico dei voti
-      chartData: {
-        labels: ['Settembre', 'Ottobre', 'Novembre', 'Dicembre', 'Gennaio'],
-        datasets: [
-          {
-            label: 'Voti',
-            data: [8, 7, 9, 6, 7], // Questi sarebbero i voti mensili dello studente
-            borderColor: 'rgba(75, 192, 192, 1)',
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            fill: true,
-            tension: 0.4
-          }
-        ]
-      }
-    }
+      materie: [
+        { id: 1, nome: "Matematica" },
+        { id: 2, nome: "Fisica" }
+      ],
+      voti: [
+        { id: 1, materia: "Fisica", docente: "Giulia Bianchi", voto: 10, data: "2025-03-26" }
+      ]
+    };
   },
   methods: {
     logout() {
-      // Esegui logout (puoi integrarlo con la logica di autenticazione)
-      this.$router.push('/login')
-    },
-    viewDetails(subject) {
-      // Funzione per visualizzare i dettagli di un voto
-      alert(`Dettagli del voto per: ${subject}`)
+      // Rimuove i dati salvati
+      localStorage.removeItem('Utente');
+
+      // Reindirizza alla pagina di login
+      this.$router.push('/');
     }
   }
-}
+};
 </script>
 
 <style scoped>
-/* Aggiungi qui le tue personalizzazioni di stile */
+/* Aggiungi qui se vuoi altri effetti personalizzati */
 </style>

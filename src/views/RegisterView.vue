@@ -88,6 +88,7 @@ import axios from 'axios'
 export default {
   data() {
     return {
+      utente:'',
       nome: '',
       cognome: '',
       data_nascita: '',
@@ -145,14 +146,19 @@ export default {
           password: this.password,
           type: this.type, // Aggiungi il tipo utente al corpo della richiesta
         })
-          console.log('utente:',response.data.utente.type)
+        const utente = response.data.utente;
+
+        // Salva token e utente
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('Utente', JSON.stringify(utente));
+          //console.log('utente:',response.data.utente.type)
           // Salva il token e reindirizza
           localStorage.setItem('token', response.data.token)
-          if(response.data.type==='Docente'){
+          if(utente.type===2){
             this.$router.push('/teacher')
-          }else if(response.data.type==='Studente'){
+          }else if(utente.type===3){
             this.$router.push('/student')
-          }else if(response.data.type==='Amministratore'){
+          }else if(utente.type===1){
             this.$router.push('/administrator')
           }
       } catch (error) {

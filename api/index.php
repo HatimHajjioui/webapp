@@ -72,7 +72,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/regis
             $stmt2 = $pdo->prepare("INSERT INTO studente (ID_Anagrafica, ID_Classe) VALUES (:id, 1)");
             $stmt2->execute(['id' => $idAnagrafica]);
             $idStudente = $pdo->lastInsertId();
-
             $stmt3 = $pdo->prepare("INSERT INTO utente (Email, Password, Tipo_Utente, ID_Studente) 
                                     VALUES (:email, :password, :type, :id_studente)");
             $stmt3->execute([
@@ -81,6 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/regis
                 'type' => 3,
                 'id_studente' => $idStudente
             ]);
+            $utente = $stmt3->fetch(PDO::FETCH_ASSOC);
         } else if ($dati['type'] === 'Docente') {
             $stmt2 = $pdo->prepare("INSERT INTO docente (ID_Anagrafica) VALUES (:id,1)");
             $stmt2->execute(['id' => $idAnagrafica]);
@@ -94,10 +94,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/regis
                 'type' => 2,
                 'id_docente' => $idDocente
             ]);
+            $utente = $stmt3->fetch(PDO::FETCH_ASSOC);
         }else if ($dati['type'] === 'Amministratore') {
             $stmt2 = $pdo->prepare("INSERT INTO docente (ID_Anagrafica) VALUES (:id,1)");
             $stmt2->execute(['id' => $idAnagrafica]);
-            $idDocente = $pdo->lastInsertId();
+            $idAmministratore = $pdo->lastInsertId();
 
             $stmt3 = $pdo->prepare("INSERT INTO utente (Email, Password, Tipo_Utente, ID_Docente) 
                                     VALUES (:email, :password, :type, :id_docente)");
@@ -105,10 +106,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/regis
                 'email' => $dati['email'],
                 'password' => $dati['password'],
                 'type' => 1,
-                'id_docente' => $idDocente
+                'id_docente' => $idAmministratore
             ]);
+            $utente = $stmt3->fetch(PDO::FETCH_ASSOC);
         }
-        $utente = $stmt3->fetch(PDO::FETCH_ASSOC);
+
         echo json_encode(["messaggio" => "Registrazione avvenuta con successo!","utente" => $utente]);
     } catch (PDOException $e) {
         echo json_encode(["errore" => "Errore nel database: " . $e->getMessage()]);
