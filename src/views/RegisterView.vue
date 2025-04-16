@@ -151,14 +151,14 @@ export default {
         // Salva token e utente
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('Utente', JSON.stringify(utente));
-          //console.log('utente:',response.data.utente.type)
+        console.log('utente:',response.data.utente.Tipo_Utente)
           // Salva il token e reindirizza
           localStorage.setItem('token', response.data.token)
-          if(utente.type===2){
+          if(response.data.utente.Tipo_Utente===2){
             this.$router.push('/teacher')
-          }else if(utente.type===3){
+          }else if(response.data.utente.Tipo_Utente===3){
             this.$router.push('/student')
-          }else if(utente.type===1){
+          }else if(response.data.utente.Tipo_Utente===1){
             this.$router.push('/administrator')
           }
       } catch (error) {

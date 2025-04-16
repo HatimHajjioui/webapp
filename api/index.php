@@ -66,6 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/regis
         ]);
 
         $idAnagrafica = $pdo->lastInsertId();
+        error_log("ID anagrafica" . $idAnagrafica);
+
 
         // Inserisci in Studente o Docente in base al tipo
         if ($dati['type'] === 'Studente') {
@@ -74,26 +76,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/regis
             $idStudente = $pdo->lastInsertId();
             $stmt3 = $pdo->prepare("INSERT INTO utente (Email, Password, Tipo_Utente, ID_Studente) 
                                     VALUES (:email, :password, :type, :id_studente)");
+
+
             $stmt3->execute([
                 'email' => $dati['email'],
                 'password' => $dati['password'],
                 'type' => 3,
                 'id_studente' => $idStudente
             ]);
+
+            $idUtente = $pdo->lastInsertId();
             $utente = $stmt3->fetch(PDO::FETCH_ASSOC);
         } else if ($dati['type'] === 'Docente') {
-            $stmt2 = $pdo->prepare("INSERT INTO docente (ID_Anagrafica) VALUES (:id,1)");
+            $stmt2 = $pdo->prepare("INSERT INTO docente (ID_Anagrafica) VALUES (:id)");
             $stmt2->execute(['id' => $idAnagrafica]);
             $idDocente = $pdo->lastInsertId();
 
             $stmt3 = $pdo->prepare("INSERT INTO utente (Email, Password, Tipo_Utente, ID_Docente) 
                                     VALUES (:email, :password, :type, :id_docente)");
+
+
             $stmt3->execute([
                 'email' => $dati['email'],
                 'password' => $dati['password'],
                 'type' => 2,
                 'id_docente' => $idDocente
             ]);
+            $idUtente = $pdo->lastInsertId();
             $utente = $stmt3->fetch(PDO::FETCH_ASSOC);
         }else if ($dati['type'] === 'Amministratore') {
             $stmt2 = $pdo->prepare("INSERT INTO docente (ID_Anagrafica) VALUES (:id,1)");
@@ -102,16 +111,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/regis
 
             $stmt3 = $pdo->prepare("INSERT INTO utente (Email, Password, Tipo_Utente, ID_Docente) 
                                     VALUES (:email, :password, :type, :id_docente)");
+
+
+
             $stmt3->execute([
                 'email' => $dati['email'],
                 'password' => $dati['password'],
                 'type' => 1,
                 'id_docente' => $idAmministratore
             ]);
-            $utente = $stmt3->fetch(PDO::FETCH_ASSOC);
+            $idUtente = $pdo->lastInsertId();
+
         }
 
-        echo json_encode(["messaggio" => "Registrazione avvenuta con successo!","utente" => $utente]);
+        $getUtente = $pdo->prepare("SELECT * FROM utente WHERE ID_Utente = :id");
+        $getUtente->execute(['id' => $idUtente]);
+        $utenteDB = $getUtente->fetch(PDO::FETCH_ASSOC);
+        error_log("Utente" . $utenteDB);
+        error_log("ID Utente" . $idUtente);
+        echo json_encode(["messaggio" => "Registrazione avvenuta con successo!","utente" => $utenteDB]);
     } catch (PDOException $e) {
         echo json_encode(["errore" => "Errore nel database: " . $e->getMessage()]);
     }
