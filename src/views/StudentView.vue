@@ -1,59 +1,69 @@
 <template>
-  <button @click="logout">Esci</button>
-  <div class="min-h-screen bg-gradient-to-br from-blue-100 to-purple-200 p-6">
-    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-6">
-      <h1 class="text-3xl font-bold text-center mb-4">Benvenuto, {{ studente.nome }} {{ studente.cognome }}</h1>
-
-      <div class="grid md:grid-cols-2 gap-6">
-        <!-- Info Anagrafiche -->
-        <div class="bg-blue-50 p-4 rounded-xl shadow">
-          <h2 class="text-xl font-semibold mb-2">Dati Personali</h2>
-          <p><strong>Email:</strong> {{ studente.email }}</p>
-          <p><strong>Data di Nascita:</strong> {{ studente.data_nascita }}</p>
-          <p><strong>Indirizzo:</strong> {{ studente.indirizzo }}</p>
-          <p><strong>Telefono:</strong> {{ studente.telefono }}</p>
-        </div>
-
-        <!-- Classe e indirizzo -->
-        <div class="bg-purple-50 p-4 rounded-xl shadow">
-          <h2 class="text-xl font-semibold mb-2">Classe e Indirizzo</h2>
-          <p><strong>Classe:</strong> {{ studente.classe }}</p>
-          <p><strong>Anno Scolastico:</strong> {{ studente.anno }}</p>
-          <p><strong>Indirizzo di Studio:</strong> {{ studente.indirizzo_studio }}</p>
-        </div>
+  <div class="studente-view">
+    <!-- Header con Logout -->
+    <header class="hero">
+      <div class="top-bar">
+        <h1>Istituto Galileo Galilei</h1>
+        <button class="logout-btn" @click="logout">🔓 Logout</button>
       </div>
+      <p>Benvenuto, {{ studente.nome }} {{ studente.cognome }}</p>
+    </header>
 
-      <!-- Materie -->
-      <div class="mt-8 bg-green-50 p-4 rounded-xl shadow">
-        <h2 class="text-xl font-semibold mb-2">Materie della tua Classe</h2>
-        <ul class="list-disc ml-5">
-          <li v-for="materia in materie" :key="materia.id">{{ materia.nome }}</li>
+    <!-- Info anagrafiche + Classe -->
+    <section class="info-section">
+      <div class="info-card blue">
+        <h2>Dati Personali</h2>
+        <ul>
+          <li><strong>Email:</strong> {{ studente.email }}</li>
+          <li><strong>Data di Nascita:</strong> {{ studente.data_nascita }}</li>
+          <li><strong>Indirizzo:</strong> {{ studente.indirizzo }}</li>
+          <li><strong>Telefono:</strong> {{ studente.telefono }}</li>
         </ul>
       </div>
-
-      <!-- Voti -->
-      <div class="mt-8 bg-yellow-50 p-4 rounded-xl shadow">
-        <h2 class="text-xl font-semibold mb-2">I tuoi Voti</h2>
-        <table class="w-full text-left table-auto">
-          <thead>
-          <tr class="bg-yellow-200">
-            <th class="p-2">Materia</th>
-            <th class="p-2">Docente</th>
-            <th class="p-2">Voto</th>
-            <th class="p-2">Data</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="voto in voti" :key="voto.id" class="border-t">
-            <td class="p-2">{{ voto.materia }}</td>
-            <td class="p-2">{{ voto.docente }}</td>
-            <td class="p-2">{{ voto.voto }}</td>
-            <td class="p-2">{{ voto.data }}</td>
-          </tr>
-          </tbody>
-        </table>
+      <div class="info-card purple">
+        <h2>Classe e Indirizzo</h2>
+        <ul>
+          <li><strong>Classe:</strong> {{ studente.classe }}</li>
+          <li><strong>Anno Scolastico:</strong> {{ studente.anno }}</li>
+          <li><strong>Indirizzo di Studio:</strong> {{ studente.indirizzo_studio }}</li>
+        </ul>
       </div>
-    </div>
+    </section>
+
+    <!-- Materie -->
+    <section class="materie-section">
+      <h2>📘 Materie della tua Classe</h2>
+      <ul>
+        <li v-for="materia in materie" :key="materia.id">{{ materia.nome }}</li>
+      </ul>
+    </section>
+
+    <!-- Voti -->
+    <section class="voti-section">
+      <h2>📊 I tuoi Voti</h2>
+      <table>
+        <thead>
+        <tr>
+          <th>Materia</th>
+          <th>Docente</th>
+          <th>Voto</th>
+          <th>Data</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="voto in voti" :key="voto.id">
+          <td>{{ voto.materia }}</td>
+          <td>{{ voto.docente }}</td>
+          <td>{{ voto.voto }}</td>
+          <td>{{ voto.data }}</td>
+        </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer>
+      <p>&copy; 2025 Istituto Galileo Galilei - Tutti i diritti riservati</p>
+    </footer>
   </div>
 </template>
 
@@ -78,16 +88,14 @@ export default {
         { id: 2, nome: "Fisica" }
       ],
       voti: [
-        { id: 1, materia: "Fisica", docente: "Giulia Bianchi", voto: 10, data: "2025-03-26" }
+        { id: 1, materia: "Fisica", docente: "Giulia Bianchi", voto: 10, data: "2025-03-26" },
+        { id: 2, materia: "Matematica", docente: "Luca Verdi", voto: 9, data: "2025-03-20" }
       ]
     };
   },
   methods: {
     logout() {
-      // Rimuove i dati salvati
       localStorage.removeItem('Utente');
-
-      // Reindirizza alla pagina di login
       this.$router.push('/');
     }
   }
@@ -95,5 +103,109 @@ export default {
 </script>
 
 <style scoped>
-/* Aggiungi qui se vuoi altri effetti personalizzati */
+.studente-view {
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+}
+
+.hero {
+  background: linear-gradient(to right, #007bff, #00c3ff);
+  color: white;
+  text-align: center;
+  padding: 2rem 1rem 3rem;
+  position: relative;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0 1rem;
+}
+
+.logout-btn {
+  background: white;
+  color: #007bff;
+  padding: 0.6rem 1.2rem;
+  border-radius: 25px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.logout-btn:hover {
+  background: #f0f0f0;
+}
+
+.info-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+  margin: 2rem auto;
+  max-width: 1000px;
+}
+
+.info-card {
+  flex: 1 1 300px;
+  padding: 1.5rem;
+  border-radius: 16px;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.info-card ul {
+  list-style: none;
+  padding-left: 0;
+}
+.info-card li {
+  margin: 0.3rem 0;
+}
+.blue {
+  background-color: #4da5ff;
+}
+.purple {
+  background-color: #9c7ee3;
+}
+
+.materie-section {
+  background: #f2f9ff;
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 900px;
+  border-radius: 12px;
+}
+.materie-section ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+}
+
+.voti-section {
+  background: #fff8dc;
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 900px;
+  border-radius: 12px;
+}
+.voti-section table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.voti-section th, .voti-section td {
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+.voti-section th {
+  background-color: #ffe17a;
+  color: #333;
+}
+
+footer {
+  text-align: center;
+  padding: 1rem;
+  background-color: #007bff;
+  color: white;
+  margin-top: 2rem;
+}
 </style>
