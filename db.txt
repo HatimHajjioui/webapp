@@ -36,7 +36,6 @@ CREATE TABLE docente (
                          FOREIGN KEY ( ID_Anagrafica ) REFERENCES anagrafica ( ID_Anagrafica )
 );
 
-
 CREATE TABLE utente (
     ID_Utente INT AUTO_INCREMENT PRIMARY KEY,
     Email VARCHAR(50) NOT NULL,
@@ -49,12 +48,10 @@ CREATE TABLE utente (
     FOREIGN KEY (Tipo_Utente) REFERENCES ruolo(ID_Ruolo)
 );
 
-
 CREATE TABLE materia (
     ID_Materia INTEGER PRIMARY KEY AUTO_INCREMENT ,
     Nome_Materia VARCHAR (50) NOT NULL
 );
-
 
 CREATE TABLE insegnamento (
     ID_Insegnamento INTEGER PRIMARY KEY AUTO_INCREMENT ,
@@ -162,5 +159,24 @@ VALUES (1,'Amministratore'),
  (2,'Docente'),
  (3,'Studente');
 
+-- VOTI STUDENTI ASSEGNATI DA DOCENTI
+SELECT A.Nome as studente,Voto, Nome_materia,DV.Nome as docente FROM valutazione
+JOIN studente S on valutazione.ID_Studente = S.ID_Studente
+JOIN anagrafica A on A.ID_Anagrafica = S.ID_Anagrafica
+JOIN materia M on valutazione.ID_Materia = M.ID_Materia
+JOIN docente D on valutazione.ID_Docente = D.ID_Docente
+JOIN anagrafica DV on DV.ID_Anagrafica = D.ID_Anagrafica;
+
+-- CLASSI DOVE INSEGNA UN DOCENTE E LA MATERIA CHE INSEGNA
+SELECT A.Nome AS DOCENTE,classe.Nome_Classe,M.Nome_Materia AS MATERIA_INSEGNATA FROM classe
+JOIN insegnamento I on classe.ID_Classe = I.ID_Classe
+JOIN docente D on D.ID_Docente = I.ID_Docente
+JOIN anagrafica A on A.ID_Anagrafica = D.ID_Anagrafica
+JOIN materia M on M.ID_Materia = I.ID_Materia
+;
 
 
+ALTER TABLE studente AUTO_INCREMENT = 3;
+ALTER TABLE docente AUTO_INCREMENT = 3;
+ALTER TABLE anagrafica AUTO_INCREMENT = 3;
+ALTER TABLE utente AUTO_INCREMENT = 3;
