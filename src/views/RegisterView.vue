@@ -1,21 +1,13 @@
 <template>
-  <v-app id="inspire">
-    <v-app-bar flat>
-      <v-container class="mx-auto d-flex align-center justify-center">
-        <v-avatar class="me-4" color="grey-darken-1" size="32"></v-avatar>
+  <div class="register-view">
+    <header class="hero">
+      <h1>Crea il tuo account</h1>
+      <p>Unisciti alla nostra comunità scolastica!</p>
+    </header>
 
-        <v-btn to="/" class="mx-2" variant="text">Home</v-btn>
-        <v-btn to="/profile" class="mx-2" variant="text">Profile</v-btn>
-        <v-btn to="/login" class="mx-2" variant="text">Login</v-btn>
-        <v-btn to="/register" class="mx-2" variant="text">Register</v-btn>
-
-        <v-spacer></v-spacer>
-      </v-container>
-    </v-app-bar>
-    <v-spacer> </v-spacer>
-    <v-container class="pa-4 mx-auto" max-width="400px">
-      <v-card class="pa-4">
-        <v-card-title class="text-center">Registrazione</v-card-title>
+    <main class="form-container">
+      <div class="form-box">
+        <h2>Registrazione</h2>
 
         <v-alert v-if="errorMessage" type="error" class="mb-3">
           {{ errorMessage }}
@@ -24,62 +16,50 @@
         <v-form @submit.prevent="register">
           <v-text-field v-model="nome" label="Nome" required outlined dense></v-text-field>
           <v-text-field v-model="cognome" label="Cognome" required outlined dense></v-text-field>
-          <v-text-field
-            v-model="data_nascita"
-            label="Data di nascita"
-            required
-            outlined
-            dense
-          ></v-text-field>
-          <v-text-field
-            v-model="indirizzo"
-            label="Indirizzo"
-            required
-            outlined
-            dense
-          ></v-text-field>
+          <v-text-field v-model="data_nascita" label="Data di nascita" required outlined dense></v-text-field>
+          <v-text-field v-model="indirizzo" label="Indirizzo" required outlined dense></v-text-field>
           <v-text-field v-model="telefono" label="Telefono" required outlined dense></v-text-field>
-          <v-text-field
-            v-model="email"
-            label="Email"
-            type="email"
-            required
-            outlined
-            dense
-          ></v-text-field>
+          <v-text-field v-model="email" label="Email" type="email" required outlined dense></v-text-field>
           <v-text-field
             v-model="password"
+            :type="showPassword ? 'text' : 'password'"
             label="Password"
-            type="password"
-            required
             outlined
             dense
-          ></v-text-field>
+            required
+            :append-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+            @click:append="showPassword = !showPassword"
+          />
           <v-text-field
             v-model="confirmPassword"
+            :type="showConfirmPassword ? 'text' : 'password'"
             label="Conferma Password"
-            type="password"
-            required
             outlined
             dense
-          ></v-text-field>
-          <v-select
-            v-model="type"
-            label="Seleziona uno stato"
-            :items="['Docente', 'Studente', 'Amministratore']"
-          ></v-select>
+            required
+            :append-icon="showConfirmPassword ? 'mdi-eye-off' : 'mdi-eye'"
+            @click:append="showConfirmPassword = !showConfirmPassword"
+          />
+          <v-select v-model="type" label="Tipo Utente" :items="['Docente', 'Studente']" outlined dense required></v-select>
 
-          <v-btn :loading="loading" color="primary" block class="mt-3" type="submit"
-            >Registrati</v-btn
-          >
+          <v-btn :loading="loading" color="primary" block class="mt-4" type="submit">Registrati</v-btn>
         </v-form>
 
-        <v-card-actions class="justify-center mt-3">
-          <v-btn variant="text" to="/login">Hai già un account? Accedi</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-container>
-  </v-app>
+        <div class="extra-links mt-4">
+          <RouterLink to="/login">Hai già un account? Accedi</RouterLink>
+          <br />
+          <RouterLink to="/">
+            <v-btn color="secondary" variant="outlined" class="mt-2">Torna alla Home</v-btn>
+          </RouterLink>
+        </div>
+
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Istituto Galileo Galilei - Tutti i diritti riservati</p>
+    </footer>
+  </div>
 </template>
 
 <script>
@@ -88,7 +68,6 @@ import axios from 'axios'
 export default {
   data() {
     return {
-      utente:'',
       nome: '',
       cognome: '',
       data_nascita: '',
@@ -97,36 +76,28 @@ export default {
       email: '',
       password: '',
       confirmPassword: '',
-      type: '', // Tipo utente (admin, user)
+      type: '',
       errorMessage: '',
       loading: false,
+      showPassword: false,
+      showConfirmPassword: false,
     }
   },
   methods: {
     async register() {
-      // Controllo che tutti i campi siano compilati
       if (
-        !this.nome ||
-        !this.cognome ||
-        !this.data_nascita ||
-        !this.indirizzo ||
-        !this.telefono ||
-        !this.email ||
-        !this.password ||
-        !this.confirmPassword ||
-        !this.type
+        !this.nome || !this.cognome || !this.data_nascita || !this.indirizzo ||
+        !this.telefono || !this.email || !this.password || !this.confirmPassword || !this.type
       ) {
         this.errorMessage = 'Tutti i campi sono obbligatori!'
         return
       }
 
-      // Controllo sulla lunghezza della password
       if (this.password.length < 6) {
         this.errorMessage = 'La password deve avere almeno 6 caratteri!'
         return
       }
 
-      // Controllo se le password coincidono
       if (this.password !== this.confirmPassword) {
         this.errorMessage = 'Le password non coincidono!'
         return
@@ -144,23 +115,18 @@ export default {
           telefono: this.telefono,
           email: this.email,
           password: this.password,
-          type: this.type, // Aggiungi il tipo utente al corpo della richiesta
+          type: this.type,
         })
-        const utente = response.data.utente;
 
-        // Salva token e utente
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('Utente', JSON.stringify(utente));
-        console.log('utente:',response.data.utente.Tipo_Utente)
-          // Salva il token e reindirizza
-          localStorage.setItem('token', response.data.token)
-          if(response.data.utente.Tipo_Utente===2){
-            this.$router.push('/teacher')
-          }else if(response.data.utente.Tipo_Utente===3){
-            this.$router.push('/student')
-          }else if(response.data.utente.Tipo_Utente===1){
-            this.$router.push('/administrator')
-          }
+        const utente = response.data.utente
+        localStorage.setItem('token', response.data.token)
+        localStorage.setItem('Utente', JSON.stringify(utente))
+
+        const tipo = utente.Tipo_Utente
+        if (tipo === 2) this.$router.push('/teacher')
+        else if (tipo === 3) this.$router.push('/student')
+        else if (tipo === 1) this.$router.push('/administrator')
+
       } catch (error) {
         this.errorMessage = error.response?.data?.message || 'Errore durante la registrazione!'
       } finally {
@@ -170,3 +136,70 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.register-view {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to right, #00c9ff, #92fe9d);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hero {
+  text-align: center;
+  color: white;
+  padding: 3rem 1rem 2rem;
+}
+.hero h1 {
+  font-size: 2.5rem;
+}
+.hero p {
+  font-size: 1.2rem;
+  margin-top: 0.5rem;
+}
+
+.form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  padding: 2rem 1rem;
+}
+
+.form-box {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 450px;
+}
+
+.form-box h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  color: #007bff;
+}
+
+.extra-links {
+  text-align: center;
+}
+.extra-links a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+}
+.extra-links a:hover {
+  text-decoration: underline;
+}
+
+footer {
+  text-align: center;
+  padding: 1rem;
+  background-color: #007bff;
+  color: white;
+}
+</style>

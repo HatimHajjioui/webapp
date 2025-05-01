@@ -37,48 +37,52 @@ CREATE TABLE docente (
 );
 
 CREATE TABLE utente (
-    ID_Utente INT AUTO_INCREMENT PRIMARY KEY,
-    Email VARCHAR(50) NOT NULL,
-    Password VARCHAR(255) NOT NULL,
-    Tipo_Utente INTEGER NOT NULL,
-    ID_Docente INT NULL,
-    ID_Studente INT NULL,
-    FOREIGN KEY (ID_Docente) REFERENCES docente(ID_Docente),
-    FOREIGN KEY (ID_Studente) REFERENCES studente(ID_Studente),
-    FOREIGN KEY (Tipo_Utente) REFERENCES ruolo(ID_Ruolo)
+                        ID_Utente INT AUTO_INCREMENT PRIMARY KEY,
+                        Email VARCHAR(50) NOT NULL,
+                        Password VARCHAR(255) NOT NULL,
+                        Tipo_Utente INTEGER NOT NULL,
+                        ID_Docente INT NULL,
+                        ID_Studente INT NULL,
+                        FOREIGN KEY (ID_Docente) REFERENCES docente(ID_Docente),
+                        FOREIGN KEY (ID_Studente) REFERENCES studente(ID_Studente),
+                        FOREIGN KEY (Tipo_Utente) REFERENCES ruolo(ID_Ruolo)
 );
 
 CREATE TABLE materia (
-    ID_Materia INTEGER PRIMARY KEY AUTO_INCREMENT ,
-    Nome_Materia VARCHAR (50) NOT NULL
+                         ID_Materia INTEGER PRIMARY KEY AUTO_INCREMENT ,
+                         Nome_Materia VARCHAR (100) NOT NULL
 );
+/*
+ALTER TABLE materia
+    MODIFY COLUMN Nome_Materia VARCHAR(100) NOT NULL;
 
+*/
 CREATE TABLE insegnamento (
-    ID_Insegnamento INTEGER PRIMARY KEY AUTO_INCREMENT ,
-    ID_Docente INTEGER NOT NULL ,
-    ID_Materia INTEGER NOT NULL ,
-    ID_Classe INTEGER NOT NULL ,
-    FOREIGN KEY ( ID_Docente ) REFERENCES docente ( ID_Docente ) ,
-    FOREIGN KEY ( ID_Materia ) REFERENCES materia ( ID_Materia ) ,
-    FOREIGN KEY ( ID_Classe ) REFERENCES classe ( ID_Classe )
+                              ID_Insegnamento INTEGER PRIMARY KEY AUTO_INCREMENT ,
+                              ID_Docente INTEGER NOT NULL ,
+                              ID_Materia INTEGER NOT NULL ,
+                              ID_Classe INTEGER NOT NULL ,
+                              FOREIGN KEY ( ID_Docente ) REFERENCES docente ( ID_Docente ) ,
+                              FOREIGN KEY ( ID_Materia ) REFERENCES materia ( ID_Materia ) ,
+                              FOREIGN KEY ( ID_Classe ) REFERENCES classe ( ID_Classe )
 );
 
 
 CREATE TABLE valutazione (
-    ID_Voto INTEGER PRIMARY KEY AUTO_INCREMENT,
-    ID_Studente INTEGER NOT NULL,
-    ID_Materia INTEGER NOT NULL,
-    Voto DECIMAL(4, 2) NOT NULL,
-    Data_Voto DATE NOT NULL,
-    ID_Docente INTEGER NOT NULL,  -- nuova colonna per il docente
-    FOREIGN KEY (ID_Studente) REFERENCES studente(ID_Studente),
-    FOREIGN KEY (ID_Materia) REFERENCES materia(ID_Materia),
-    FOREIGN KEY (ID_Docente) REFERENCES docente(ID_Docente)  -- vincolo di chiave esterna
+                             ID_Voto INTEGER PRIMARY KEY AUTO_INCREMENT,
+                             ID_Studente INTEGER NOT NULL,
+                             ID_Materia INTEGER NOT NULL,
+                             Voto DECIMAL(4, 2) NOT NULL,
+                             Data_Voto DATE NOT NULL,
+                             ID_Docente INTEGER NOT NULL,  -- nuova colonna per il docente
+                             FOREIGN KEY (ID_Studente) REFERENCES studente(ID_Studente),
+                             FOREIGN KEY (ID_Materia) REFERENCES materia(ID_Materia),
+                             FOREIGN KEY (ID_Docente) REFERENCES docente(ID_Docente)  -- vincolo di chiave esterna
 );
 
 CREATE TABLE ruolo (
-    ID_Ruolo INTEGER PRIMARY KEY AUTO_INCREMENT,
-    Ruolo VARCHAR(20) NOT NULL
+                       ID_Ruolo INTEGER PRIMARY KEY AUTO_INCREMENT,
+                       Ruolo VARCHAR(20) NOT NULL
 );
 
 
@@ -156,27 +160,851 @@ VALUES ('giulia.bianchi@example.com', 'password123', 3, NULL, 1);
 
 INSERT INTO ruolo(ID_Ruolo,Ruolo)
 VALUES (1,'Amministratore'),
- (2,'Docente'),
- (3,'Studente');
+       (2,'Docente'),
+       (3,'Studente');
 
 -- VOTI STUDENTI ASSEGNATI DA DOCENTI
 SELECT A.Nome as studente,Voto, Nome_materia,DV.Nome as docente FROM valutazione
-JOIN studente S on valutazione.ID_Studente = S.ID_Studente
-JOIN anagrafica A on A.ID_Anagrafica = S.ID_Anagrafica
-JOIN materia M on valutazione.ID_Materia = M.ID_Materia
-JOIN docente D on valutazione.ID_Docente = D.ID_Docente
-JOIN anagrafica DV on DV.ID_Anagrafica = D.ID_Anagrafica;
+                                                                         JOIN studente S on valutazione.ID_Studente = S.ID_Studente
+                                                                         JOIN anagrafica A on A.ID_Anagrafica = S.ID_Anagrafica
+                                                                         JOIN materia M on valutazione.ID_Materia = M.ID_Materia
+                                                                         JOIN docente D on valutazione.ID_Docente = D.ID_Docente
+                                                                         JOIN anagrafica DV on DV.ID_Anagrafica = D.ID_Anagrafica;
 
 -- CLASSI DOVE INSEGNA UN DOCENTE E LA MATERIA CHE INSEGNA
 SELECT A.Nome AS DOCENTE,classe.Nome_Classe,M.Nome_Materia AS MATERIA_INSEGNATA FROM classe
-JOIN insegnamento I on classe.ID_Classe = I.ID_Classe
-JOIN docente D on D.ID_Docente = I.ID_Docente
-JOIN anagrafica A on A.ID_Anagrafica = D.ID_Anagrafica
-JOIN materia M on M.ID_Materia = I.ID_Materia
+                                                                                         JOIN insegnamento I on classe.ID_Classe = I.ID_Classe
+                                                                                         JOIN docente D on D.ID_Docente = I.ID_Docente
+                                                                                         JOIN anagrafica A on A.ID_Anagrafica = D.ID_Anagrafica
+                                                                                         JOIN materia M on M.ID_Materia = I.ID_Materia
 ;
 
 
-ALTER TABLE studente AUTO_INCREMENT = 3;
-ALTER TABLE docente AUTO_INCREMENT = 3;
-ALTER TABLE anagrafica AUTO_INCREMENT = 3;
-ALTER TABLE utente AUTO_INCREMENT = 3;
+
+-- RUOLI
+INSERT INTO ruolo (Ruolo) VALUES
+                              ('Studente'),
+                              ('Docente'),
+                              ('Amministratore');
+
+
+
+-- ANAGRAFICA
+INSERT INTO anagrafica (Nome, Cognome, Data_Nascita, Indirizzo, Telefono, Email) VALUES
+-- Studenti
+('Mario', 'Rossi', '2007-04-15', 'Via Roma 12, Milano', '3401122334', 'mario.rossi@studenti.scuola.it'),
+('Luisa', 'Bianchi', '2006-09-20', 'Viale Lombardia 33, Torino', '3405566778', 'luisa.bianchi@studenti.scuola.it'),
+('Davide', 'Verdi', '2007-02-08', 'Via Dante 45, Napoli', '3492233445', 'davide.verdi@studenti.scuola.it'),
+-- Docenti
+('Luca', 'Verdi', '1980-03-10', 'Via Petrarca 5, Roma', '3331234567', 'luca.verdi@docenti.scuola.it'),
+('Sara', 'Viola', '1990-08-14', 'Via Foscolo 99, Venezia', '3342233445', 'sara.viola@docenti.scuola.it');
+
+-- CLASSI
+INSERT INTO classe (Nome_Classe, Anno_Scolastico, ID_Indirizzo_Studio) VALUES
+                                                                           ('2A', '2024/2025', 1),
+                                                                           ('3B', '2024/2025', 2);
+
+-- STUDENTI
+INSERT INTO studente (ID_Anagrafica, ID_Classe) VALUES
+                                                    (1, 1),
+                                                    (2, 1),
+                                                    (3, 2);
+
+-- DOCENTI
+INSERT INTO docente (ID_Anagrafica) VALUES
+                                        (4),
+                                        (5);
+
+-- MATERIE
+INSERT INTO materia (Nome_Materia) VALUES
+-- Materie Comuni
+('Italiano'),
+('Storia'),
+('Inglese'),
+('Matematica'),
+('Scienze Integrate (Fisica)'),
+('Scienze Integrate (Chimica)'),
+('Tecnologie e Tecniche di Rappresentazione Grafica'),
+('Tecnologie Informatiche'),
+('Scienze e Tecnologie Applicate'),
+('Diritto ed Economia'),
+('Scienze Motorie e Sportive'),
+('Religione Cattolica o Attività Alternative'),
+
+-- Meccanica, Meccatronica ed Energia
+('Meccanica, Macchine ed Energia'),
+('Sistemi e Automazione'),
+('Tecnologie Meccaniche di Processo e Prodotto'),
+('Disegno, Progettazione e Organizzazione Industriale'),
+
+-- Elettronica ed Elettrotecnica
+('Elettronica'),
+('Elettrotecnica'),
+('Sistemi Automatici'),
+('Tecnologie e Progettazione di Sistemi Elettrici ed Elettronici'),
+
+-- Informatica e Telecomunicazioni
+('Informatica'),
+('Telecomunicazioni'),
+('Sistemi e Reti'),
+('Tecnologie e Progettazione di Sistemi Informatici e di Telecomunicazioni'),
+
+-- Chimica, Materiali e Biotecnologie
+('Chimica Analitica e Strumentale'),
+('Chimica Organica e Biochimica'),
+('Biologia, Microbiologia e Tecnologie di Controllo Ambientale'),
+('Tecnologie Chimiche Industriali'),
+
+-- Manutenzione e Assistenza Tecnica
+('Tecnologie Meccaniche ed Elettriche'),
+('Tecnologie e Tecniche di Installazione e Manutenzione'),
+('Tecnologie dell\'Informazione e della Comunicazione'),
+('Laboratori Tecnologici ed Esercitazioni');
+
+
+
+
+
+-- Disabilita i controlli di chiave esterna per velocizzare l'inserimento
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Inizia la transazione per migliorare le prestazioni
+START TRANSACTION;
+
+-- Inserimento dei 50 docenti (ID da 1 a 50)
+INSERT INTO anagrafica (ID_Anagrafica, Nome, Cognome, Data_Nascita, Indirizzo, Telefono, Email) VALUES
+                                                                                                    (1, 'Mario', 'Rossi', '1975-06-15', 'Via Roma 10, Milano', '+39 02 1234567', 'mario.rossi@email.com'),
+                                                                                                    (2, 'Laura', 'Bianchi', '1980-03-22', 'Corso Italia 45, Roma', '+39 06 7654321', 'laura.bianchi@email.com'),
+                                                                                                    (3, 'Giovanni', 'Verdi', '1978-11-30', 'Piazza Garibaldi 12, Napoli', '+39 081 9876543', 'giovanni.verdi@email.com'),
+                                                                                                    (4, 'Anna', 'Russo', '1972-09-05', 'Via Dante 7, Firenze', '+39 055 1237890', 'anna.russo@email.com'),
+                                                                                                    (5, 'Paolo', 'Ferrari', '1969-07-18', 'Viale dei Fiori 33, Bologna', '+39 051 4561237', 'paolo.ferrari@email.com'),
+                                                                                                    (6, 'Elena', 'Esposito', '1982-04-25', 'Via Milano 56, Torino', '+39 011 7890123', 'elena.esposito@email.com'),
+                                                                                                    (7, 'Marco', 'Romano', '1977-12-10', 'Corso Vittorio Emanuele 89, Palermo', '+39 091 2345678', 'marco.romano@email.com'),
+                                                                                                    (8, 'Francesca', 'Colombo', '1983-01-20', 'Via Verdi 23, Genova', '+39 010 3456789', 'francesca.colombo@email.com'),
+                                                                                                    (9, 'Luca', 'Ricci', '1974-08-14', 'Piazza Duomo 5, Verona', '+39 045 6789012', 'luca.ricci@email.com'),
+                                                                                                    (10, 'Silvia', 'Marino', '1979-05-28', 'Via Cavour 17, Padova', '+39 049 8901234', 'silvia.marino@email.com'),
+                                                                                                    (11, 'Andrea', 'Greco', '1976-02-11', 'Corso Magenta 42, Trieste', '+39 040 5678901', 'andrea.greco@email.com'),
+                                                                                                    (12, 'Valentina', 'Barbieri', '1981-10-03', 'Via Nazionale 78, Bari', '+39 080 1234560', 'valentina.barbieri@email.com'),
+                                                                                                    (13, 'Roberto', 'Moretti', '1973-07-22', 'Largo Augusto 15, Catania', '+39 095 2345671', 'roberto.moretti@email.com'),
+                                                                                                    (14, 'Giulia', 'Fontana', '1984-04-17', 'Via Torino 29, Venezia', '+39 041 3456782', 'giulia.fontana@email.com'),
+                                                                                                    (15, 'Stefano', 'Galli', '1970-11-09', 'Piazza Navona 3, Messina', '+39 090 4567893', 'stefano.galli@email.com'),
+                                                                                                    (16, 'Alessandra', 'Caruso', '1975-09-30', 'Corso Buenos Aires 61, Reggio Calabria', '+39 0965 5678904', 'alessandra.caruso@email.com'),
+                                                                                                    (17, 'Antonio', 'Mancini', '1968-06-12', 'Via Veneto 8, Perugia', '+39 075 6789015', 'antonio.mancini@email.com'),
+                                                                                                    (18, 'Elisabetta', 'Rinaldi', '1985-03-05', 'Viale Libia 34, Modena', '+39 059 7890126', 'elisabetta.rinaldi@email.com'),
+                                                                                                    (19, 'Davide', 'Leone', '1971-12-28', 'Via Appia 72, Parma', '+39 0521 8901237', 'davide.leone@email.com'),
+                                                                                                    (20, 'Monica', 'Martini', '1977-08-19', 'Piazza San Marco 4, Livorno', '+39 0586 9012348', 'monica.martini@email.com'),
+                                                                                                    (21, 'Simone', 'Santoro', '1980-01-14', 'Corso Francia 53, Ravenna', '+39 0544 0123459', 'simone.santoro@email.com'),
+                                                                                                    (22, 'Barbara', 'Longo', '1974-05-27', 'Via Monte Bianco 16, Foggia', '+39 0881 1234500', 'barbara.longo@email.com'),
+                                                                                                    (23, 'Enrico', 'Conte', '1967-10-08', 'Largo Colombo 9, Rimini', '+39 0541 2345011', 'enrico.conte@email.com'),
+                                                                                                    (24, 'Daniela', 'Sala', '1982-07-21', 'Viale Europa 38, Salerno', '+39 089 3450122', 'daniela.sala@email.com'),
+                                                                                                    (25, 'Fabio', 'Martinelli', '1979-04-03', 'Via Toscana 25, Ferrara', '+39 0532 4501233', 'fabio.martinelli@email.com'),
+                                                                                                    (26, 'Patrizia', 'Serra', '1973-11-16', 'Corso Cavour 47, Sassari', '+39 079 5012344', 'patrizia.serra@email.com'),
+                                                                                                    (27, 'Giorgio', 'D''Angelo', '1969-02-09', 'Piazza Indipendenza 6, Latina', '+39 0773 0123455', 'giorgio.dangelo@email.com'),
+                                                                                                    (28, 'Roberta', 'Palumbo', '1983-09-22', 'Via Emilia 14, Monza', '+39 039 1234566', 'roberta.palumbo@email.com'),
+                                                                                                    (29, 'Massimo', 'Parisi', '1976-06-15', 'Viale della Repubblica 31, Bergamo', '+39 035 2345677', 'massimo.parisi@email.com'),
+                                                                                                    (30, 'Eleonora', 'Villa', '1981-03-08', 'Corso Sicilia 19, Pescara', '+39 085 3456788', 'eleonora.villa@email.com'),
+                                                                                                    (31, 'Luigi', 'Ferri', '1972-12-01', 'Via Adriatica 22, Bolzano', '+39 0471 4567899', 'luigi.ferri@email.com'),
+                                                                                                    (32, 'Caterina', 'Marchetti', '1978-07-24', 'Piazza Martiri 7, Udine', '+39 0432 5678900', 'caterina.marchetti@email.com'),
+                                                                                                    (33, 'Vincenzo', 'Gentile', '1975-04-17', 'Viale dei Mille 43, Siracusa', '+39 0931 6789011', 'vincenzo.gentile@email.com'),
+                                                                                                    (34, 'Angela', 'Riva', '1980-01-10', 'Corso Umberto 28, Arezzo', '+39 0575 7890122', 'angela.riva@email.com'),
+                                                                                                    (35, 'Domenico', 'Lombardi', '1974-08-03', 'Via Garibaldi 11, Alessandria', '+39 0131 8901233', 'domenico.lombardi@email.com'),
+                                                                                                    (36, 'Stefania', 'Pellegrini', '1984-05-26', 'Piazza della Vittoria 2, Pisa', '+39 050 9012344', 'stefania.pellegrini@email.com'),
+                                                                                                    (37, 'Raffaele', 'Vitale', '1977-02-19', 'Largo Torino 35, Barletta', '+39 0883 0123455', 'raffaele.vitale@email.com'),
+                                                                                                    (38, 'Paola', 'Coppola', '1971-11-12', 'Via Firenze 49, Ancona', '+39 071 1234566', 'paola.coppola@email.com'),
+                                                                                                    (39, 'Gianluca', 'De Santis', '1968-06-05', 'Corso Roma 8, Andria', '+39 0883 2345677', 'gianluca.desantis@email.com'),
+                                                                                                    (40, 'Teresa', 'Ferretti', '1983-03-30', 'Viale Venezia 17, Trento', '+39 0461 3456788', 'teresa.ferretti@email.com'),
+                                                                                                    (41, 'Federico', 'Mariani', '1976-10-23', 'Piazza Dante 1, Brindisi', '+39 0831 4567899', 'federico.mariani@email.com'),
+                                                                                                    (42, 'Claudia', 'Testa', '1980-07-16', 'Via Mazzini 24, Torre del Greco', '+39 081 5678900', 'claudia.testa@email.com'),
+                                                                                                    (43, 'Pietro', 'Grasso', '1973-04-09', 'Corso Garibaldi 36, Como', '+39 031 6789011', 'pietro.grasso@email.com'),
+                                                                                                    (44, 'Sabrina', 'Rossetti', '1979-01-02', 'Via Manzoni 13, Marsala', '+39 0923 7890122', 'sabrina.rossetti@email.com'),
+                                                                                                    (45, 'Alberto', 'Orlando', '1975-08-25', 'Viale della Libertà 5, Guidonia Montecelio', '+39 0774 8901233', 'alberto.orlando@email.com'),
+                                                                                                    (46, 'Marta', 'Damico', '1982-05-18', 'Piazza Risorgimento 9, Pozzuoli', '+39 081 9012344', 'marta.damico@email.com'),
+                                                                                                    (47, 'Riccardo', 'Piras', '1978-02-11', 'Via XX Settembre 20, Casoria', '+39 081 0123455', 'riccardo.piras@email.com'),
+                                                                                                    (48, 'Cinzia', 'Bernardi', '1972-11-04', 'Corso Europa 44, Varese', '+39 0332 1234566', 'cinzia.bernardi@email.com'),
+                                                                                                    (49, 'Gabriele', 'Fabbri', '1969-06-27', 'Largo Porto 7, Fiumicino', '+39 06 2345677', 'gabriele.fabbri@email.com'),
+                                                                                                    (50, 'Valeria', 'Sorrentino', '1984-03-20', 'Via delle Rose 15, Altamura', '+39 080 3456788', 'valeria.sorrentino@email.com');
+
+-- Inserimento dei 500 studenti (ID da 51 a 550)
+-- Per gli studenti userò una procedura per generare dati casuali ma coerenti
+DELIMITER //
+CREATE PROCEDURE GeneraStudenti()
+BEGIN
+    DECLARE i INT DEFAULT 51;
+    DECLARE nome VARCHAR(50);
+    DECLARE cognome VARCHAR(50);
+    DECLARE data_nascita DATE;
+    DECLARE indirizzo VARCHAR(100);
+    DECLARE telefono VARCHAR(20);
+    DECLARE email VARCHAR(100);
+
+    -- Lista di nomi e cognomi italiani comuni
+    DECLARE nomi VARCHAR(1000) DEFAULT 'Alessandro,Sofia,Leonardo,Aurora,Lorenzo,Ginevra,Mattia,Beatrice,Andrea,Alice,Matteo,Vittoria,Gabriele,Giorgia,Tommaso,Emma,Riccardo,Ludovica,Edoardo,Anna,Diego,Sara,Antonio,Giulia,Pietro,Gaia,Francesco,Matilde,Federico,Greta';
+    DECLARE cognomi VARCHAR(1000) DEFAULT 'Rossi,Russo,Ferrari,Esposito,Bianchi,Romano,Colombo,Ricci,Marino,Greco,Bruno,Gallo,Conti,De Luca,Mancini,Costa,Giordano,Rizzo,Lombardi,Moretti,Barbieri,Fontana,Santoro,Mariani,Rinaldi,Caruso,Ferri,Farina,Gentile,Martinelli';
+
+    WHILE i <= 550 DO
+            -- Estrai nome casuale
+            SET nome = SUBSTRING_INDEX(SUBSTRING_INDEX(nomi, ',', FLOOR(1 + RAND() * 30)), ',', -1);
+
+            -- Estrai cognome casuale
+            SET cognome = SUBSTRING_INDEX(SUBSTRING_INDEX(cognomi, ',', FLOOR(1 + RAND() * 30)), ',', -1);
+
+            -- Genera data di nascita tra il 2000 e il 2006 (studenti tra 17 e 23 anni)
+            SET data_nascita = DATE_ADD('2000-01-01', INTERVAL FLOOR(RAND() * 2555) DAY);
+
+            -- Genera indirizzo casuale
+            SET indirizzo = CONCAT(
+                    CASE FLOOR(RAND() * 5)
+                        WHEN 0 THEN 'Via '
+                        WHEN 1 THEN 'Corso '
+                        WHEN 2 THEN 'Piazza '
+                        WHEN 3 THEN 'Viale '
+                        WHEN 4 THEN 'Largo '
+                        END,
+                    CASE FLOOR(RAND() * 10)
+                        WHEN 0 THEN 'Roma'
+                        WHEN 1 THEN 'Milano'
+                        WHEN 2 THEN 'Napoli'
+                        WHEN 3 THEN 'Torino'
+                        WHEN 4 THEN 'Palermo'
+                        WHEN 5 THEN 'Genova'
+                        WHEN 6 THEN 'Bologna'
+                        WHEN 7 THEN 'Firenze'
+                        WHEN 8 THEN 'Venezia'
+                        WHEN 9 THEN 'Verona'
+                        END,
+                    ' ',
+                    FLOOR(1 + RAND() * 100),
+                    ', ',
+                    CASE FLOOR(RAND() * 20)
+                        WHEN 0 THEN 'Roma'
+                        WHEN 1 THEN 'Milano'
+                        WHEN 2 THEN 'Napoli'
+                        WHEN 3 THEN 'Torino'
+                        WHEN 4 THEN 'Palermo'
+                        WHEN 5 THEN 'Genova'
+                        WHEN 6 THEN 'Bologna'
+                        WHEN 7 THEN 'Firenze'
+                        WHEN 8 THEN 'Bari'
+                        WHEN 9 THEN 'Catania'
+                        WHEN 10 THEN 'Venezia'
+                        WHEN 11 THEN 'Verona'
+                        WHEN 12 THEN 'Messina'
+                        WHEN 13 THEN 'Padova'
+                        WHEN 14 THEN 'Trieste'
+                        WHEN 15 THEN 'Taranto'
+                        WHEN 16 THEN 'Brescia'
+                        WHEN 17 THEN 'Parma'
+                        WHEN 18 THEN 'Prato'
+                        WHEN 19 THEN 'Modena'
+                        END
+                            );
+
+            -- Genera numero di telefono casuale
+            SET telefono = CONCAT(
+                    '+39 ',
+                    CASE FLOOR(RAND() * 4)
+                        WHEN 0 THEN '02'
+                        WHEN 1 THEN '06'
+                        WHEN 2 THEN '081'
+                        WHEN 3 THEN '051'
+                        END,
+                    ' ',
+                    FLOOR(1000000 + RAND() * 9000000)
+                           );
+
+            -- Genera email casuale
+            SET email = CONCAT(
+                    LOWER(nome), '.', LOWER(cognome),
+                    CASE FLOOR(RAND() * 5)
+                        WHEN 0 THEN ''
+                        WHEN 1 THEN FLOOR(RAND() * 100)
+                        WHEN 2 THEN FLOOR(RAND() * 10)
+                        WHEN 3 THEN '.studente'
+                        WHEN 4 THEN '.univ'
+                        END,
+                    '@',
+                    CASE FLOOR(RAND() * 5)
+                        WHEN 0 THEN 'gmail.com'
+                        WHEN 1 THEN 'yahoo.it'
+                        WHEN 2 THEN 'hotmail.com'
+                        WHEN 3 THEN 'libero.it'
+                        WHEN 4 THEN 'studenti.univ.it'
+                        END
+                        );
+
+            -- Inserisci lo studente
+            INSERT INTO anagrafica (ID_Anagrafica, Nome, Cognome, Data_Nascita, Indirizzo, Telefono, Email)
+            VALUES (i, nome, cognome, data_nascita, indirizzo, telefono, email);
+
+            SET i = i + 1;
+        END WHILE;
+END //
+DELIMITER ;
+
+-- Esegui la procedura per generare gli studenti
+CALL GeneraStudenti();
+
+-- Elimina la procedura dopo l'uso
+DROP PROCEDURE IF EXISTS GeneraStudenti;
+
+-- Riattiva i controlli di chiave esterna
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- Commit della transazione
+COMMIT;
+
+
+
+
+-- INSEGNAMENTI
+INSERT INTO insegnamento (ID_Docente, ID_Materia, ID_Classe) VALUES
+                                                                 (1, 1, 1),
+                                                                 (2, 2, 1),
+                                                                 (1, 3, 2);
+
+-- VALUTAZIONI
+INSERT INTO valutazione (ID_Studente, ID_Materia, Voto, Data_Voto, ID_Docente) VALUES
+                                                                                   (1, 1, 8.00, '2025-03-01', 1),
+                                                                                   (2, 2, 7.50, '2025-03-03', 2),
+                                                                                   (3, 3, 9.00, '2025-03-05', 1);
+
+-- UTENTI
+-- Studenti
+INSERT INTO utente (Email, Password, Tipo_Utente, ID_Studente) VALUES
+                                                                   ('mario.rossi@studenti.scuola.it', 'pwd123', 1, 1),
+                                                                   ('luisa.bianchi@studenti.scuola.it', 'pwd456', 1, 2),
+                                                                   ('davide.verdi@studenti.scuola.it', 'pwd789', 1, 3);
+
+-- Docenti
+INSERT INTO utente (Email, Password, Tipo_Utente, ID_Docente) VALUES
+                                                                  ('luca.verdi@docenti.scuola.it', 'pwd321', 2, 1),
+                                                                  ('sara.viola@docenti.scuola.it', 'pwd654', 2, 2);
+
+-- Amministratore
+INSERT INTO utente (Email, Password, Tipo_Utente) VALUES
+    ('admin@scuola.it', 'adminpwd', 3);
+
+ALTER TABLE studente AUTO_INCREMENT = 0;
+ALTER TABLE insegnamento AUTO_INCREMENT = 0;
+ALTER TABLE indirizzo AUTO_INCREMENT = 0;
+ALTER TABLE ruolo AUTO_INCREMENT = 0;
+ALTER TABLE valutazione AUTO_INCREMENT = 0;
+ALTER TABLE docente AUTO_INCREMENT = 0;
+ALTER TABLE anagrafica AUTO_INCREMENT = 0;
+ALTER TABLE utente AUTO_INCREMENT = 0;
+ALTER TABLE materia AUTO_INCREMENT = 0;
+ALTER TABLE classe AUTO_INCREMENT = 0;
+
+
+-- Disabilita i controlli di chiave esterna per velocizzare l'inserimento
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Inizia la transazione per migliorare le prestazioni
+START TRANSACTION;
+
+-- Inserimento delle classi per l'anno scolastico 2024/2025
+INSERT INTO classe (Nome_Classe, Anno_Scolastico, ID_Indirizzo_Studio) VALUES
+-- Informatica (ID_Indirizzo_Studio = 1) - Sezione I
+('1I', '2024/2025', 1),
+('2I', '2024/2025', 1),
+('3I', '2024/2025', 1),
+('4I', '2024/2025', 1),
+('5I', '2024/2025', 1),
+
+-- Meccanica (ID_Indirizzo_Studio = 2) - Sezione M
+('1M', '2024/2025', 2),
+('2M', '2024/2025', 2),
+('3M', '2024/2025', 2),
+('4M', '2024/2025', 2),
+('5M', '2024/2025', 2),
+
+-- Elettronica (ID_Indirizzo_Studio = 3) - Sezione E
+('1E', '2024/2025', 3),
+('2E', '2024/2025', 3),
+('3E', '2024/2025', 3),
+('4E', '2024/2025', 3),
+('5E', '2024/2025', 3),
+
+-- Chimica (ID_Indirizzo_Studio = 4) - Sezione C
+('1C', '2024/2025', 4),
+('2C', '2024/2025', 4),
+('3C', '2024/2025', 4),
+('4C', '2024/2025', 4),
+('5C', '2024/2025', 4),
+
+-- Meccatronica (ID_Indirizzo_Studio = 5) - Sezione T
+('1T', '2024/2025', 5),
+('2T', '2024/2025', 5),
+('3T', '2024/2025', 5),
+('4T', '2024/2025', 5),
+('5T', '2024/2025', 5);
+
+-- Riattiva i controlli di chiave esterna
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- Commit della transazione
+COMMIT;
+
+
+-- Disabilita i controlli di chiave esterna per velocizzare l'inserimento
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Inizia la transazione per migliorare le prestazioni
+START TRANSACTION;
+
+-- Inserimento degli studenti nelle classi
+-- Assegno circa 20 studenti per classe (500 studenti / 25 classi)
+INSERT INTO studente (ID_Anagrafica, ID_Classe) VALUES
+-- Classe 1I (ID_Classe = 1)
+(51, 1), (52, 1), (53, 1), (54, 1), (55, 1), (56, 1), (57, 1), (58, 1), (59, 1), (60, 1),
+(61, 1), (62, 1), (63, 1), (64, 1), (65, 1), (66, 1), (67, 1), (68, 1), (69, 1), (70, 1),
+
+-- Classe 2I (ID_Classe = 2)
+(71, 2), (72, 2), (73, 2), (74, 2), (75, 2), (76, 2), (77, 2), (78, 2), (79, 2), (80, 2),
+(81, 2), (82, 2), (83, 2), (84, 2), (85, 2), (86, 2), (87, 2), (88, 2), (89, 2), (90, 2),
+
+-- Classe 3I (ID_Classe = 3)
+(91, 3), (92, 3), (93, 3), (94, 3), (95, 3), (96, 3), (97, 3), (98, 3), (99, 3), (100, 3),
+(101, 3), (102, 3), (103, 3), (104, 3), (105, 3), (106, 3), (107, 3), (108, 3), (109, 3), (110, 3),
+
+-- Classe 4I (ID_Classe = 4)
+(111, 4), (112, 4), (113, 4), (114, 4), (115, 4), (116, 4), (117, 4), (118, 4), (119, 4), (120, 4),
+(121, 4), (122, 4), (123, 4), (124, 4), (125, 4), (126, 4), (127, 4), (128, 4), (129, 4), (130, 4),
+
+-- Classe 5I (ID_Classe = 5)
+(131, 5), (132, 5), (133, 5), (134, 5), (135, 5), (136, 5), (137, 5), (138, 5), (139, 5), (140, 5),
+(141, 5), (142, 5), (143, 5), (144, 5), (145, 5), (146, 5), (147, 5), (148, 5), (149, 5), (150, 5),
+
+-- Classe 1M (ID_Classe = 6)
+(151, 6), (152, 6), (153, 6), (154, 6), (155, 6), (156, 6), (157, 6), (158, 6), (159, 6), (160, 6),
+(161, 6), (162, 6), (163, 6), (164, 6), (165, 6), (166, 6), (167, 6), (168, 6), (169, 6), (170, 6),
+
+-- Classe 2M (ID_Classe = 7)
+(171, 7), (172, 7), (173, 7), (174, 7), (175, 7), (176, 7), (177, 7), (178, 7), (179, 7), (180, 7),
+(181, 7), (182, 7), (183, 7), (184, 7), (185, 7), (186, 7), (187, 7), (188, 7), (189, 7), (190, 7),
+
+-- Classe 3M (ID_Classe = 8)
+(191, 8), (192, 8), (193, 8), (194, 8), (195, 8), (196, 8), (197, 8), (198, 8), (199, 8), (200, 8),
+(201, 8), (202, 8), (203, 8), (204, 8), (205, 8), (206, 8), (207, 8), (208, 8), (209, 8), (210, 8),
+
+-- Classe 4M (ID_Classe = 9)
+(211, 9), (212, 9), (213, 9), (214, 9), (215, 9), (216, 9), (217, 9), (218, 9), (219, 9), (220, 9),
+(221, 9), (222, 9), (223, 9), (224, 9), (225, 9), (226, 9), (227, 9), (228, 9), (229, 9), (230, 9),
+
+-- Classe 5M (ID_Classe = 10)
+(231, 10), (232, 10), (233, 10), (234, 10), (235, 10), (236, 10), (237, 10), (238, 10), (239, 10), (240, 10),
+(241, 10), (242, 10), (243, 10), (244, 10), (245, 10), (246, 10), (247, 10), (248, 10), (249, 10), (250, 10),
+
+-- Classe 1E (ID_Classe = 11)
+(251, 11), (252, 11), (253, 11), (254, 11), (255, 11), (256, 11), (257, 11), (258, 11), (259, 11), (260, 11),
+(261, 11), (262, 11), (263, 11), (264, 11), (265, 11), (266, 11), (267, 11), (268, 11), (269, 11), (270, 11),
+
+-- Classe 2E (ID_Classe = 12)
+(271, 12), (272, 12), (273, 12), (274, 12), (275, 12), (276, 12), (277, 12), (278, 12), (279, 12), (280, 12),
+(281, 12), (282, 12), (283, 12), (284, 12), (285, 12), (286, 12), (287, 12), (288, 12), (289, 12), (290, 12),
+
+-- Classe 3E (ID_Classe = 13)
+(291, 13), (292, 13), (293, 13), (294, 13), (295, 13), (296, 13), (297, 13), (298, 13), (299, 13), (300, 13),
+(301, 13), (302, 13), (303, 13), (304, 13), (305, 13), (306, 13), (307, 13), (308, 13), (309, 13), (310, 13),
+
+-- Classe 4E (ID_Classe = 14)
+(311, 14), (312, 14), (313, 14), (314, 14), (315, 14), (316, 14), (317, 14), (318, 14), (319, 14), (320, 14),
+(321, 14), (322, 14), (323, 14), (324, 14), (325, 14), (326, 14), (327, 14), (328, 14), (329, 14), (330, 14),
+
+-- Classe 5E (ID_Classe = 15)
+(331, 15), (332, 15), (333, 15), (334, 15), (335, 15), (336, 15), (337, 15), (338, 15), (339, 15), (340, 15),
+(341, 15), (342, 15), (343, 15), (344, 15), (345, 15), (346, 15), (347, 15), (348, 15), (349, 15), (350, 15),
+
+-- Classe 1C (ID_Classe = 16)
+(351, 16), (352, 16), (353, 16), (354, 16), (355, 16), (356, 16), (357, 16), (358, 16), (359, 16), (360, 16),
+(361, 16), (362, 16), (363, 16), (364, 16), (365, 16), (366, 16), (367, 16), (368, 16), (369, 16), (370, 16),
+
+-- Classe 2C (ID_Classe = 17)
+(371, 17), (372, 17), (373, 17), (374, 17), (375, 17), (376, 17), (377, 17), (378, 17), (379, 17), (380, 17),
+(381, 17), (382, 17), (383, 17), (384, 17), (385, 17), (386, 17), (387, 17), (388, 17), (389, 17), (390, 17),
+
+-- Classe 3C (ID_Classe = 18)
+(391, 18), (392, 18), (393, 18), (394, 18), (395, 18), (396, 18), (397, 18), (398, 18), (399, 18), (400, 18),
+(401, 18), (402, 18), (403, 18), (404, 18), (405, 18), (406, 18), (407, 18), (408, 18), (409, 18), (410, 18),
+
+-- Classe 4C (ID_Classe = 19)
+(411, 19), (412, 19), (413, 19), (414, 19), (415, 19), (416, 19), (417, 19), (418, 19), (419, 19), (420, 19),
+(421, 19), (422, 19), (423, 19), (424, 19), (425, 19), (426, 19), (427, 19), (428, 19), (429, 19), (430, 19),
+
+-- Classe 5C (ID_Classe = 20)
+(431, 20), (432, 20), (433, 20), (434, 20), (435, 20), (436, 20), (437, 20), (438, 20), (439, 20), (440, 20),
+(441, 20), (442, 20), (443, 20), (444, 20), (445, 20), (446, 20), (447, 20), (448, 20), (449, 20), (450, 20),
+
+-- Classe 1T (ID_Classe = 21)
+(451, 21), (452, 21), (453, 21), (454, 21), (455, 21), (456, 21), (457, 21), (458, 21), (459, 21), (460, 21),
+(461, 21), (462, 21), (463, 21), (464, 21), (465, 21), (466, 21), (467, 21), (468, 21), (469, 21), (470, 21),
+
+-- Classe 2T (ID_Classe = 22)
+(471, 22), (472, 22), (473, 22), (474, 22), (475, 22), (476, 22), (477, 22), (478, 22), (479, 22), (480, 22),
+(481, 22), (482, 22), (483, 22), (484, 22), (485, 22), (486, 22), (487, 22), (488, 22), (489, 22), (490, 22),
+
+-- Classe 3T (ID_Classe = 23)
+(491, 23), (492, 23), (493, 23), (494, 23), (495, 23), (496, 23), (497, 23), (498, 23), (499, 23), (500, 23),
+(501, 23), (502, 23), (503, 23), (504, 23), (505, 23), (506, 23), (507, 23), (508, 23), (509, 23), (510, 23),
+
+-- Classe 4T (ID_Classe = 24)
+(511, 24), (512, 24), (513, 24), (514, 24), (515, 24), (516, 24), (517, 24), (518, 24), (519, 24), (520, 24),
+(521, 24), (522, 24), (523, 24), (524, 24), (525, 24), (526, 24), (527, 24), (528, 24), (529, 24), (530, 24),
+
+-- Classe 5T (ID_Classe = 25)
+(531, 25), (532, 25), (533, 25), (534, 25), (535, 25), (536, 25), (537, 25), (538, 25), (539, 25), (540, 25),
+(541, 25), (542, 25), (543, 25), (544, 25), (545, 25), (546, 25), (547, 25), (548, 25), (549, 25), (550, 25);
+
+-- Riattiva i controlli di chiave esterna
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- Commit della transazione
+COMMIT;
+
+
+-- Popola la tabella docente con i primi 50 ID_Anagrafica
+INSERT INTO docente (ID_Anagrafica) VALUES (1);
+INSERT INTO docente (ID_Anagrafica) VALUES (2);
+INSERT INTO docente (ID_Anagrafica) VALUES (3);
+INSERT INTO docente (ID_Anagrafica) VALUES (4);
+INSERT INTO docente (ID_Anagrafica) VALUES (5);
+INSERT INTO docente (ID_Anagrafica) VALUES (6);
+INSERT INTO docente (ID_Anagrafica) VALUES (7);
+INSERT INTO docente (ID_Anagrafica) VALUES (8);
+INSERT INTO docente (ID_Anagrafica) VALUES (9);
+INSERT INTO docente (ID_Anagrafica) VALUES (10);
+INSERT INTO docente (ID_Anagrafica) VALUES (11);
+INSERT INTO docente (ID_Anagrafica) VALUES (12);
+INSERT INTO docente (ID_Anagrafica) VALUES (13);
+INSERT INTO docente (ID_Anagrafica) VALUES (14);
+INSERT INTO docente (ID_Anagrafica) VALUES (15);
+INSERT INTO docente (ID_Anagrafica) VALUES (16);
+INSERT INTO docente (ID_Anagrafica) VALUES (17);
+INSERT INTO docente (ID_Anagrafica) VALUES (18);
+INSERT INTO docente (ID_Anagrafica) VALUES (19);
+INSERT INTO docente (ID_Anagrafica) VALUES (20);
+INSERT INTO docente (ID_Anagrafica) VALUES (21);
+INSERT INTO docente (ID_Anagrafica) VALUES (22);
+INSERT INTO docente (ID_Anagrafica) VALUES (23);
+INSERT INTO docente (ID_Anagrafica) VALUES (24);
+INSERT INTO docente (ID_Anagrafica) VALUES (25);
+INSERT INTO docente (ID_Anagrafica) VALUES (26);
+INSERT INTO docente (ID_Anagrafica) VALUES (27);
+INSERT INTO docente (ID_Anagrafica) VALUES (28);
+INSERT INTO docente (ID_Anagrafica) VALUES (29);
+INSERT INTO docente (ID_Anagrafica) VALUES (30);
+INSERT INTO docente (ID_Anagrafica) VALUES (31);
+INSERT INTO docente (ID_Anagrafica) VALUES (32);
+INSERT INTO docente (ID_Anagrafica) VALUES (33);
+INSERT INTO docente (ID_Anagrafica) VALUES (34);
+INSERT INTO docente (ID_Anagrafica) VALUES (35);
+INSERT INTO docente (ID_Anagrafica) VALUES (36);
+INSERT INTO docente (ID_Anagrafica) VALUES (37);
+INSERT INTO docente (ID_Anagrafica) VALUES (38);
+INSERT INTO docente (ID_Anagrafica) VALUES (39);
+INSERT INTO docente (ID_Anagrafica) VALUES (40);
+INSERT INTO docente (ID_Anagrafica) VALUES (41);
+INSERT INTO docente (ID_Anagrafica) VALUES (42);
+INSERT INTO docente (ID_Anagrafica) VALUES (43);
+INSERT INTO docente (ID_Anagrafica) VALUES (44);
+INSERT INTO docente (ID_Anagrafica) VALUES (45);
+INSERT INTO docente (ID_Anagrafica) VALUES (46);
+INSERT INTO docente (ID_Anagrafica) VALUES (47);
+INSERT INTO docente (ID_Anagrafica) VALUES (48);
+INSERT INTO docente (ID_Anagrafica) VALUES (50);
+INSERT INTO docente (ID_Anagrafica) VALUES (49);
+
+
+
+-- Disabilita i controlli di chiave esterna per velocizzare l'inserimento
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Inizia la transazione per migliorare le prestazioni
+START TRANSACTION;
+
+-- Inserimento degli insegnamenti
+-- Assumo che le materie abbiano questi ID (modifica se necessario):
+-- 1=Matematica, 2=Italiano, 3=Inglese, 4=Storia, 5=Fisica,
+-- 6=Informatica, 7=Meccanica, 8=Elettronica, 9=Chimica, 10=Meccatronica,
+-- 11=Sistemi, 12=Tecnologie, 13=Diritto, 14=Geografia, 15=Scienze
+
+INSERT INTO insegnamento (ID_Docente, ID_Materia, ID_Classe) VALUES
+-- Docente 1 (Mario Rossi) - Insegna a max 3 classi
+(1, 1, 1), (1, 1, 6), (1, 5, 11),  -- Matematica a 1I e 1M, Fisica a 1E
+
+-- Docente 2 (Laura Bianchi)
+(2, 2, 2), (2, 2, 7), (2, 4, 12),  -- Italiano a 2I e 2M, Storia a 2E
+
+-- Docente 3 (Giovanni Verdi)
+(3, 6, 1), (3, 6, 2), (3, 11, 3),  -- Informatica a 1I e 2I, Sistemi a 3I
+
+-- Docente 4 (Anna Russo)
+(4, 9, 16), (4, 9, 17), (4, 15, 18), -- Chimica a 1C e 2C, Scienze a 3C
+
+-- Docente 5 (Paolo Ferrari)
+(5, 7, 6), (5, 7, 7), (5, 10, 21),  -- Meccanica a 1M e 2M, Meccatronica a 1T
+
+-- Docente 6 (Elena Esposito)
+(6, 3, 3), (6, 3, 8), (6, 3, 13),   -- Inglese a 3I, 3M, 3E
+
+-- Docente 7 (Marco Romano)
+(7, 8, 11), (7, 8, 12), (7, 8, 13), -- Elettronica a 1E, 2E, 3E
+
+-- Docente 8 (Francesca Colombo)
+(8, 12, 16), (8, 12, 21), (8, 12, 22), -- Tecnologie a 1C, 1T, 2T
+
+-- Docente 9 (Luca Ricci)
+(9, 1, 3), (9, 1, 8), (9, 1, 13),   -- Matematica a 3I, 3M, 3E
+
+-- Docente 10 (Silvia Marino)
+(10, 2, 4), (10, 2, 9), (10, 2, 14), -- Italiano a 4I, 4M, 4E
+
+-- Docente 11 (Andrea Greco)
+(11, 5, 2), (11, 5, 7), (11, 5, 12), -- Fisica a 2I, 2M, 2E
+
+-- Docente 12 (Valentina Barbieri)
+(12, 4, 1), (12, 4, 6), (12, 14, 11), -- Storia a 1I e 1M, Geografia a 1E
+
+-- Docente 13 (Roberto Moretti)
+(13, 10, 21), (13, 10, 22), (13, 10, 23), -- Meccatronica a 1T, 2T, 3T
+
+-- Docente 14 (Giulia Fontana)
+(14, 15, 4), (14, 15, 9), (14, 15, 14), -- Scienze a 4I, 4M, 4E
+
+-- Docente 15 (Stefano Galli)
+(15, 7, 8), (15, 7, 9), (15, 7, 10), -- Meccanica a 3M, 4M, 5M
+
+-- Docente 16 (Alessandra Caruso)
+(16, 3, 4), (16, 3, 9), (16, 3, 14), -- Inglese a 4I, 4M, 4E
+
+-- Docente 17 (Antonio Mancini)
+(17, 6, 5), (17, 11, 10), (17, 6, 15), -- Informatica a 5I, Sistemi a 5M, Informatica a 5E
+
+-- Docente 18 (Elisabetta Rinaldi)
+(18, 2, 5), (18, 2, 10), (18, 2, 15), -- Italiano a 5I, 5M, 5E
+
+-- Docente 19 (Davide Leone)
+(19, 8, 14), (19, 8, 15), (19, 8, 24), -- Elettronica a 4E, 5E, 4T
+
+-- Docente 20 (Monica Martini)
+(20, 13, 1), (20, 13, 16), (20, 13, 21), -- Diritto a 1I, 1C, 1T
+
+-- Docente 21 (Simone Santoro)
+(21, 1, 4), (21, 1, 19), (21, 5, 24), -- Matematica a 4I e 4C, Fisica a 4T
+
+-- Docente 22 (Barbara Longo)
+(22, 9, 17), (22, 9, 18), (22, 9, 19), -- Chimica a 2C, 3C, 4C
+
+-- Docente 23 (Enrico Conte)
+(23, 12, 2), (23, 12, 17), (23, 12, 22), -- Tecnologie a 2I, 2C, 2T
+
+-- Docente 24 (Daniela Sala)
+(24, 4, 5), (24, 14, 10), (24, 4, 15), -- Storia a 5I, Geografia a 5M, Storia a 5E
+
+-- Docente 25 (Fabio Martinelli)
+(25, 11, 4), (25, 11, 9), (25, 11, 14), -- Sistemi a 4I, 4M, 4E
+
+-- Docente 26 (Patrizia Serra)
+(26, 3, 5), (26, 3, 10), (26, 3, 15), -- Inglese a 5I, 5M, 5E
+
+-- Docente 27 (Giorgio D'Angelo)
+(27, 5, 3), (27, 5, 18), (27, 5, 23), -- Fisica a 3I, 3C, 3T
+
+-- Docente 28 (Roberta Palumbo)
+(28, 14, 3), (28, 14, 8), (28, 14, 13), -- Geografia a 3I, 3M, 3E
+
+-- Docente 29 (Massimo Parisi)
+(29, 10, 23), (29, 10, 24), (29, 10, 25), -- Meccatronica a 3T, 4T, 5T
+
+-- Docente 30 (Eleonora Villa)
+(30, 15, 5), (30, 15, 20), (30, 15, 25), -- Scienze a 5I, 5C, 5T
+
+-- Docente 31 (Luigi Ferri)
+(31, 6, 16), (31, 6, 17), (31, 6, 18), -- Informatica a 1C, 2C, 3C
+
+-- Docente 32 (Caterina Marchetti)
+(32, 2, 6), (32, 2, 11), (32, 2, 16), -- Italiano a 1M, 1E, 1C
+
+-- Docente 33 (Vincenzo Gentile)
+(33, 8, 16), (33, 8, 17), (33, 8, 18), -- Elettronica a 1C, 2C, 3C
+
+-- Docente 34 (Angela Riva)
+(34, 13, 6), (34, 13, 11), (34, 13, 16), -- Diritto a 1M, 1E, 1C
+
+-- Docente 35 (Domenico Lombardi)
+(35, 1, 6), (35, 1, 11), (35, 1, 16), -- Matematica a 1M, 1E, 1C
+
+-- Docente 36 (Stefania Pellegrini)
+(36, 4, 7), (36, 4, 12), (36, 4, 17), -- Storia a 2M, 2E, 2C
+
+-- Docente 37 (Raffaele Vitale)
+(37, 7, 21), (37, 7, 22), (37, 7, 23), -- Meccanica a 1T, 2T, 3T
+
+-- Docente 38 (Paola Coppola)
+(38, 9, 19), (38, 9, 20), (38, 9, 25), -- Chimica a 4C, 5C, 5T
+
+-- Docente 39 (Gianluca De Santis)
+(39, 11, 5), (39, 11, 20), (39, 11, 25), -- Sistemi a 5I, 5C, 5T
+
+-- Docente 40 (Teresa Ferretti)
+(40, 12, 3), (40, 12, 8), (40, 12, 13), -- Tecnologie a 3I, 3M, 3E
+
+-- Docente 41 (Federico Mariani)
+(41, 15, 6), (41, 15, 11), (41, 15, 16), -- Scienze a 1M, 1E, 1C
+
+-- Docente 42 (Claudia Testa)
+(42, 3, 6), (42, 3, 11), (42, 3, 16), -- Inglese a 1M, 1E, 1C
+
+-- Docente 43 (Pietro Grasso)
+(43, 5, 7), (43, 5, 12), (43, 5, 17), -- Fisica a 2M, 2E, 2C
+
+-- Docente 44 (Sabrina Rossetti)
+(44, 14, 7), (44, 14, 12), (44, 14, 17), -- Geografia a 2M, 2E, 2C
+
+-- Docente 45 (Alberto Orlando)
+(45, 13, 7), (45, 13, 12), (45, 13, 17), -- Diritto a 2M, 2E, 2C
+
+-- Docente 46 (Marta Damico)
+(46, 6, 19), (46, 6, 20), (46, 6, 25), -- Informatica a 4C, 5C, 5T
+
+-- Docente 47 (Riccardo Piras)
+(47, 8, 19), (47, 8, 20), (47, 8, 25), -- Elettronica a 4C, 5C, 5T
+
+-- Docente 48 (Cinzia Bernardi)
+(48, 1, 19), (48, 1, 20), (48, 1, 25), -- Matematica a 4C, 5C, 5T
+
+-- Docente 49 (Gabriele Fabbri)
+(49, 2, 19), (49, 2, 20), (49, 2, 25), -- Italiano a 4C, 5C, 5T
+
+-- Docente 50 (Valeria Sorrentino)
+(50, 4, 19), (50, 4, 20), (50, 4, 25); -- Storia a 4C, 5C, 5T
+
+-- Riattiva i controlli di chiave esterna
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- Commit della transazione
+COMMIT;
+
+
+-- Disabilita i controlli di chiave esterna per velocizzare l'inserimento
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Inizia la transazione per migliorare le prestazioni
+START TRANSACTION;
+
+-- Elimina la procedura se esiste già
+DROP PROCEDURE IF EXISTS GeneraValutazioni;
+
+-- Creo una procedura per generare voti casuali ma realistici
+DELIMITER //
+CREATE PROCEDURE GeneraValutazioni()
+BEGIN
+    DECLARE i INT DEFAULT 1;
+    DECLARE studente_id INT;
+    DECLARE materia_id INT;
+    DECLARE docente_id INT;
+    DECLARE voto DECIMAL(4,2);
+    DECLARE data_voto DATE;
+    DECLARE j INT DEFAULT 1;
+    DECLARE num_voti INT;
+
+    -- Per ogni studente (500 studenti)
+    WHILE i <= 500 DO
+            -- Ottengo l'ID dello studente
+            SET studente_id = i;
+
+            -- Genero da 5 a 15 voti per studente
+            SET num_voti = FLOOR(5 + RAND() * 11);
+            SET j = 1;
+
+            WHILE j <= num_voti DO
+                    -- Seleziono una materia casuale tra quelle che lo studente segue
+                    SELECT i.ID_Materia, i.ID_Docente INTO materia_id, docente_id
+                    FROM insegnamento i
+                             JOIN classe c ON i.ID_Classe = c.ID_Classe
+                             JOIN studente s ON c.ID_Classe = s.ID_Classe
+                    WHERE s.ID_Studente = studente_id
+                    ORDER BY RAND()
+                    LIMIT 1;
+
+                    -- Genero un voto casuale tra 4 e 10, con il 70% di probabilità tra 6 e 10
+                    IF RAND() < 0.7 THEN
+                        SET voto = ROUND(6 + RAND() * 4, 1); -- Voto tra 6.0 e 10.0
+                    ELSE
+                        SET voto = ROUND(4 + RAND() * 2, 1); -- Voto tra 4.0 e 6.0
+                    END IF;
+
+                    -- Genero una data casuale nell'anno scolastico 2024/2025
+                    -- (da settembre 2024 a giugno 2025)
+                    SET data_voto = DATE_ADD('2024-09-01', INTERVAL FLOOR(RAND() * 270) DAY);
+
+                    -- Inserisco la valutazione
+                    INSERT INTO valutazione (ID_Studente, ID_Materia, Voto, Data_Voto, ID_Docente)
+                    VALUES (studente_id, materia_id, voto, data_voto, docente_id);
+
+                    SET j = j + 1;
+                END WHILE;
+
+            SET i = i + 1;
+        END WHILE;
+END //
+DELIMITER ;
+
+-- Esegui la procedura per generare le valutazioni
+CALL GeneraValutazioni();
+
+-- Elimina la procedura dopo l'uso
+DROP PROCEDURE IF EXISTS GeneraValutazioni;
+
+-- Riattiva i controlli di chiave esterna
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- Commit della transazione
+COMMIT;
+
+
+
+
+-- Disabilita i controlli di chiave esterna per velocizzare l'inserimento
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Inizia la transazione per migliorare le prestazioni
+START TRANSACTION;
+
+-- Inserimento degli utenti docenti (ID_Ruolo = 2)
+INSERT INTO utente (Email, Password, ID_Ruolo, ID_Docente, ID_Studente)
+SELECT
+    anag.Email,
+    CONCAT(LOWER(REPLACE(anag.Nome, ' ', '')), '_', DATE_FORMAT(anag.Data_Nascita, '%d%m%Y')) AS Password,
+    2 AS ID_Ruolo,
+    doc.ID_Docente,
+    NULL AS ID_Studente
+FROM docente doc
+         JOIN anagrafica anag ON doc.ID_Docente = anag.ID_Anagrafica;
+
+-- Inserimento degli utenti studenti (ID_Ruolo = 1)
+INSERT INTO utente (Email, Password, ID_Ruolo, ID_Docente, ID_Studente)
+SELECT
+    anag.Email,
+    CONCAT(LOWER(REPLACE(anag.Nome, ' ', '')), '_', DATE_FORMAT(anag.Data_Nascita, '%d%m%Y')) AS Password,
+    1 AS ID_Ruolo,
+    NULL AS ID_Docente,
+    stud.ID_Studente
+FROM studente stud
+         JOIN anagrafica anag ON stud.ID_Anagrafica = anag.ID_Anagrafica;
+
+-- Creazione di un utente amministratore (ID_Ruolo = 3)
+INSERT INTO utente (Email, Password, ID_Ruolo, ID_Docente, ID_Studente)
+VALUES (
+           'admin@scuola.it',
+           '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', -- password è "password"
+           3,
+           NULL,
+           NULL
+       );
+
+-- Riattiva i controlli di chiave esterna
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- Commit della transazione
+COMMIT;

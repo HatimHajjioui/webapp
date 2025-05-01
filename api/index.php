@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/login
         exit;
     }
 
-    $stmt = $pdo->prepare("SELECT ID_Utente, Email, Tipo_Utente FROM utente WHERE Email = :email AND Password = :password");
+    $stmt = $pdo->prepare("SELECT ID_Utente, Email, ID_Ruolo FROM utente WHERE Email = :email AND Password = :password");
     $stmt->execute([
         'email' => $dati['email'],
         'password' => $dati['password']
@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/regis
             $stmt2 = $pdo->prepare("INSERT INTO studente (ID_Anagrafica, ID_Classe) VALUES (:id, 1)");
             $stmt2->execute(['id' => $idAnagrafica]);
             $idStudente = $pdo->lastInsertId();
-            $stmt3 = $pdo->prepare("INSERT INTO utente (Email, Password, Tipo_Utente, ID_Studente) 
+            $stmt3 = $pdo->prepare("INSERT INTO utente (Email, Password, ID_Ruolo, ID_Studente) 
                                     VALUES (:email, :password, :type, :id_studente)");
 
 
@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/regis
             $stmt2->execute(['id' => $idAnagrafica]);
             $idDocente = $pdo->lastInsertId();
 
-            $stmt3 = $pdo->prepare("INSERT INTO utente (Email, Password, Tipo_Utente, ID_Docente) 
+            $stmt3 = $pdo->prepare("INSERT INTO utente (Email, Password, ID_Ruolo, ID_Docente) 
                                     VALUES (:email, :password, :type, :id_docente)");
 
 
@@ -109,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/regis
             $stmt2->execute(['id' => $idAnagrafica]);
             $idAmministratore = $pdo->lastInsertId();
 
-            $stmt3 = $pdo->prepare("INSERT INTO utente (Email, Password, Tipo_Utente, ID_Docente) 
+            $stmt3 = $pdo->prepare("INSERT INTO utente (Email, Password, ID_Ruolo, ID_Docente) 
                                     VALUES (:email, :password, :type, :id_docente)");
 
 
