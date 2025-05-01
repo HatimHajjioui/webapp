@@ -60,6 +60,7 @@ const router = createRouter({
     },
   ],
 })
+
 /*
 const register = async () => {
   try {

@@ -81,7 +81,12 @@ export default {
 
         if (response.data.messaggio) {
           this.successMessage = response.data.messaggio
-          localStorage.setItem('Utente', JSON.stringify(response.data.utente))
+          // Aggiungi l'ID_Studente all'oggetto utente prima di salvarlo
+          // In LoginView.vue, modifica la parte di salvataggio
+          localStorage.setItem('Utente', JSON.stringify({
+            ...response.data.utente,
+            ID_Studente: response.data.utente.ID_Studente
+          }));
 
           const tipo = response.data.utente.ID_Ruolo
           if (tipo === 2) this.$router.push('/teacher')

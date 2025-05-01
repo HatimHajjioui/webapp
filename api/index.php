@@ -1,7 +1,7 @@
 <?php
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Content-Type: application/json');
 
 $host = "localhost";
@@ -35,7 +35,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/login
     $utente = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($utente) {
-        echo json_encode(["messaggio" => "Login riuscito", "utente" => $utente]);
+        // Aggiungi questa parte per ottenere l'ID_Studente
+        $additionalData = [];
+        if ($utente['ID_Ruolo'] == 3) { // Studente
+            $stmt = $pdo->prepare("SELECT ID_Studente FROM studente WHERE ID_Anagrafica = 
+                              (SELECT ID_Anagrafica FROM utente WHERE ID_Utente = ?)");
+            $stmt->execute([$utente['ID_Utente']]);
+            $studenteData = $stmt->fetch(PDO::FETCH_ASSOC);
+            $additionalData['ID_Studente'] = $studenteData['ID_Studente'];
+        }
+
+        echo json_encode([
+            "messaggio" => "Login riuscito",
+            "utente" => array_merge($utente, $additionalData)
+        ]);
     } else {
         echo json_encode(["errore" => "Credenziali non valide"]);
     }
@@ -134,6 +147,95 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/regis
         echo json_encode(["errore" => "Errore nel database: " . $e->getMessage()]);
     }
 
+    exit;
+}
+
+// ENDPOINT PER DATI STUDENTE
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && preg_match('/^\/api\/studenti\/(\d+)$/', $_SERVER['REQUEST_URI'], $matches)) {
+    $studenteId = $matches[1];
+
+    try {
+        // Recupera dati anagrafici e classe
+        $stmt = $pdo->prepare("
+            SELECT a.*, c.Nome_Classe AS classe, c.Anno_Scolastico AS anno, i.Nome AS indirizzo_studio 
+            FROM studente s
+            JOIN anagrafica a ON s.ID_Anagrafica = a.ID_Anagrafica
+            JOIN classe c ON s.ID_Classe = c.ID_Classe
+            JOIN indirizzo i ON c.ID_Indirizzo_Studio = i.ID_Indirizzo
+            WHERE s.ID_Studente = ?
+        ");
+        $stmt->execute([$studenteId]);
+        $studente = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($studente) {
+            echo json_encode($studente);
+        } else {
+            echo json_encode(["errore" => "Studente non trovato"]);
+        }
+    } catch (PDOException $e) {
+        echo json_encode(["errore" => $e->getMessage()]);
+    }
+    exit;
+}
+
+// ENDPOINT PER MATERIE STUDENTE
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && preg_match('/^\/api\/studenti\/(\d+)\/materie$/', $_SERVER['REQUEST_URI'], $matches)) {
+    $studenteId = $matches[1];
+    header('Content-Type: application/json');
+
+    try {
+        $stmt = $pdo->prepare("
+            SELECT m.ID_Materia, m.Nome AS nome_materia
+            FROM insegnamento i
+            JOIN materia m ON i.ID_Materia = m.ID_Materia
+            JOIN classe c ON i.ID_Classe = c.ID_Classe
+            JOIN studente s ON c.ID_Classe = s.ID_Classe
+            WHERE s.ID_Studente = ?
+            ORDER BY m.Nome_Materia
+        ");
+        $stmt->execute([$studenteId]);
+        $materie = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Restituisci sempre un oggetto con proprietà 'data'
+        echo json_encode([
+            'success' => true,
+            'data' => $materie ?: [],
+            'message' => count($materie) ? 'Materie trovate' : 'Nessuna materia trovata'
+        ]);
+    } catch (PDOException $e) {
+        echo json_encode([
+            'success' => false,
+            'data' => [],
+            'message' => 'Errore nel database: ' . $e->getMessage()
+        ]);
+    }
+    exit;
+}
+
+// ENDPOINT PER VOTI STUDENTE
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && preg_match('/^\/api\/studenti\/(\d+)\/voti$/', $_SERVER['REQUEST_URI'], $matches)) {
+    $studenteId = $matches[1];
+
+    try {
+        $stmt = $pdo->prepare("
+            SELECT v.ID_Voto, m.Nome_Materia AS materia, 
+                   CONCAT(d.Nome, ' ', d.Cognome) AS docente, 
+                   v.Voto, v.Data_Voto AS data_voto
+            FROM valutazione v
+            JOIN materia m ON v.ID_Materia = m.ID_Materia
+            JOIN docente doc ON v.ID_Docente = doc.ID_Docente
+            JOIN anagrafica d ON doc.ID_Docente = d.ID_Anagrafica
+            JOIN studente s ON v.ID_Studente = s.ID_Studente
+            WHERE v.ID_Studente = ?
+            ORDER BY v.Data_Voto DESC
+        ");
+        $stmt->execute([$studenteId]);
+        $voti = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode($voti);
+    } catch (PDOException $e) {
+        echo json_encode(["errore" => $e->getMessage()]);
+    }
     exit;
 }
 ?>

@@ -27,7 +27,20 @@ const vuetify = createVuetify({
     },
   },
 })
-
+// In src/api/index.js o main.js
+axios.interceptors.response.use(
+  response => {
+    // Standardizza la risposta
+    if (response.data && !response.data.data && Array.isArray(response.data)) {
+      response.data = { success: true, data: response.data };
+    }
+    return response;
+  },
+  error => {
+    // Gestione degli errori standardizzata
+    return Promise.reject(error);
+  }
+);
 const app = createApp(App)
 app.config.globalProperties.$axios = axios // ✅ Rende axios disponibile globalmente
 app.use(createPinia())

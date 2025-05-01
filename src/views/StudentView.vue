@@ -6,7 +6,7 @@
           <h1>Istituto Galileo Galilei</h1>
           <button class="logout-btn" @click="logout">🔓 Logout</button>
         </div>
-        <p>Benvenuto, {{ studente.nome }} {{ studente.cognome }}</p>
+        <p>Benvenuto, {{ studente.Nome }} {{ studente.Cognome }}</p>
       </header>
 
       <!-- Info anagrafiche + Classe -->
@@ -14,10 +14,10 @@
         <div class="info-card blue">
           <h2>Dati Personali</h2>
           <ul>
-            <li><strong>Email:</strong> {{ studente.email }}</li>
-            <li><strong>Data di Nascita:</strong> {{ studente.data_nascita }}</li>
+            <li><strong>Email:</strong> {{ studente.Email }}</li>
+            <li><strong>Data di Nascita:</strong> {{ studente.Data_Nascita }}</li>
             <li><strong>Indirizzo:</strong> {{ studente.indirizzo }}</li>
-            <li><strong>Telefono:</strong> {{ studente.telefono }}</li>
+            <li><strong>Telefono:</strong> {{ studente.Telefono }}</li>
           </ul>
         </div>
         <div class="info-card purple">
@@ -68,40 +68,138 @@
   </template>
 
   <script>
+  import axios from 'axios';
+  axios.defaults.baseURL = 'http://localhost:8080'; // o la porta del tuo server PHP
   export default {
     name: "StudenteView",
     data() {
       return {
         studente: {
-          nome: "Mario",
-          cognome: "Rossi",
-          email: "mario.rossi@example.com",
-          data_nascita: "2000-05-10",
-          indirizzo: "Via Roma 1",
-          telefono: "123456789",
-          classe: "2A",
-          anno: "2024/2025",
-          indirizzo_studio: "Scientifico"
+          Nome: "",
+          Cognome: "",
+          Email: "",
+          Data_Nascita: "",
+          Indirizzo: "",
+          Telefono: "",
+          classe: "",
+          anno: "",
+          indirizzo_studio: ""
         },
-        materie: [
-          { id: 1, nome: "Matematica" },
-          { id: 2, nome: "Fisica" }
-        ],
-        voti: [
-          { id: 1, materia: "Fisica", docente: "Giulia Bianchi", voto: 10, data: "2025-03-26" },
-          { id: 2, materia: "Matematica", docente: "Luca Verdi", voto: 9, data: "2025-03-20" }
-        ]
+        materie: [],
+        voti: [],
+        isLoading: true
       };
     },
+    async created() {
+      try {
+        // 1. Prima recupera l'utente dal localStorage
+        const userData = localStorage.getItem('Utente');
+
+        if (!userData) {
+          this.$router.push('/login');
+          return;
+        }
+
+        // 2. Parsa i dati
+        const utente = JSON.parse(userData);
+        console.log('Utente dal localStorage:', utente); // Debug
+
+        // 3. Verifica i campi necessari
+        if (!utente || utente.ID_Ruolo !== 3) {
+          this.$router.push('/login');
+          return;
+        }
+
+        if (!utente.ID_Studente) {
+          console.error('ID Studente mancante nel localStorage');
+          this.$router.push('/login');
+          return;
+        }
+
+        // 4. Ora procedi con le chiamate API
+        await this.caricaDatiStudente(utente.ID_Studente);
+        await this.caricaMaterie(utente.ID_Studente);
+        await this.caricaVoti(utente.ID_Studente);
+
+      } catch (error) {
+        console.error("Errore durante il caricamento:", error);
+        this.$router.push('/login');
+      } finally {
+        this.isLoading = false;
+      }
+    },
     methods: {
+      async caricaDatiStudente(studenteId) {
+        try {
+          const response = await axios.get(`http://localhost:8080/api/studenti/${studenteId}`);
+          const dati = response.data;
+
+          // Debug: verifica la struttura della risposta
+          console.log('Dati studente:', dati);
+
+          this.studente = {
+            Nome: dati.Nome,
+            Cognome: dati.Cognome,
+            Email: dati.Email,
+            Data_Nascita: this.formattaData(dati.Data_Nascita),
+            Indirizzo: dati.Indirizzo,
+            Telefono: dati.Telefono,
+            classe: dati.classe,
+            anno: dati.anno,
+            indirizzo_studio: dati.indirizzo_studio
+          };
+        } catch (error) {
+          console.error("Errore nel caricamento dati studente:", error);
+          this.$router.push('/login');
+        }
+      },
+      async caricaMaterie(studenteId) {
+        try {
+          const response = await axios.get(`http://localhost:8080/api/studenti/${studenteId}/materie`);
+
+          // Gestione più robusta della risposta
+          let materieData = response.data?.data || response.data || [];
+
+          if (!Array.isArray(materieData)) {
+            materieData = [];
+          }
+
+          this.materie = materieData.map(m => ({
+            id: m.ID_Materia,
+            nome: m.nome_materia || m.Nome_Materia
+          }));
+        } catch (error) {
+          console.error("Errore nel caricamento materie:", error);
+          this.materie = [];
+        }
+      },
+      async caricaVoti(studenteId) {
+        try {
+          const response = await axios.get(`http://localhost:8080/api/studenti/${studenteId}/voti`);
+          let datiVoti = Array.isArray(response.data) ? response.data : [];
+
+          this.voti = datiVoti.map(v => ({
+            id: v.ID_Voto,
+            materia: v.materia || v.Nome_Materia,
+            docente: v.docente,
+            voto: v.Voto,
+            data: this.formattaData(v.data_voto)
+          }));
+        } catch (error) {
+          console.error("Errore nel caricamento voti:", error);
+          this.voti = [];
+        }
+      },
+      formattaData(data) {
+        return new Date(data).toLocaleDateString('it-IT');
+      },
       logout() {
         localStorage.removeItem('Utente');
-        this.$router.push('/');
+        this.$router.push('/login');
       }
     }
   };
   </script>
-
   <style scoped>
   .studente-view {
     font-family: 'Segoe UI', sans-serif;
