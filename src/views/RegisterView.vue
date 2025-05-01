@@ -122,7 +122,7 @@ export default {
         localStorage.setItem('token', response.data.token)
         localStorage.setItem('Utente', JSON.stringify(utente))
 
-        const tipo = utente.Tipo_Utente
+        const tipo = utente.ID_Ruolo
         if (tipo === 2) this.$router.push('/teacher')
         else if (tipo === 3) this.$router.push('/student')
         else if (tipo === 1) this.$router.push('/administrator')

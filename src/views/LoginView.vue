@@ -83,7 +83,7 @@ export default {
           this.successMessage = response.data.messaggio
           localStorage.setItem('Utente', JSON.stringify(response.data.utente))
 
-          const tipo = response.data.utente.Tipo_Utente
+          const tipo = response.data.utente.ID_Ruolo
           if (tipo === 2) this.$router.push('/teacher')
           else if (tipo === 3) this.$router.push('/student')
           else if (tipo === 1) this.$router.push('/administrator')
